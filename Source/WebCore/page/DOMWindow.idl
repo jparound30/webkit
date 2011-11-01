@@ -617,6 +617,10 @@ module window {
         attribute [EnabledAtRuntime=webkitVideoTrack] TextTrackCueListConstructor TextTrackCueList;
 #endif
 
+#if defined(ENABLE_WEBCL)
+        attribute [JSCCustomGetter] WebCLComputeContextConstructor WebCLComputeContext;
+#endif
+
         attribute DOMPluginConstructor Plugin;
         attribute DOMPluginArrayConstructor PluginArray;
 

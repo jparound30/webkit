@@ -20,7 +20,7 @@
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 // This all-in-one cpp file cuts down on template bloat to allow us to build our Windows release build.
@@ -38,7 +38,7 @@
 #include "JSCanvasPattern.cpp"
 #include "JSCanvasRenderingContext.cpp"
 #include "JSCanvasRenderingContext2D.cpp"
-#if ENABLE(WEBGL)    
+#if ENABLE(WEBGL)
 #include "JSWebGLRenderingContext.cpp"
 #endif
 #include "JSCDATASection.cpp"
@@ -484,6 +484,8 @@
 #include "JSXPathResult.cpp"
 #include "JSXSLTProcessor.cpp"
 #include "UserAgentStyleSheetsData.cpp"
+//SP
+#include "JSWebCLComputeContext.cpp"
 
 // On MSVC, including StaticConstructors.h causes all global objects not to be
 // automatically initialized by the C runtime. This is useful in some specific

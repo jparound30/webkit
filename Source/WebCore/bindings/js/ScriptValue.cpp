@@ -31,6 +31,7 @@
 #include "ScriptValue.h"
 
 #include "InspectorValues.h"
+#include "WebCLKernelTypes.h"
 #include "SerializedScriptValue.h"
 
 #include <JavaScriptCore/APICast.h>
@@ -169,5 +170,44 @@ PassRefPtr<InspectorValue> ScriptValue::toInspectorValue(ScriptState* scriptStat
     return jsToInspectorValue(scriptState, m_value.get(), InspectorValue::maxDepth);
 }
 #endif // ENABLE(INSPECTOR)
+
+
+#if ENABLE(WEBCL)
+static PassRefPtr<WebCLKernelTypeValue> jsToWebCLKernelTypeValue(ScriptState* scriptState, JSValue value)
+{
+    if (!value) {
+        ASSERT_NOT_REACHED();
+        return 0;
+    }
+    if (value.isNull() || value.isUndefined())
+        return WebCLKernelTypeValue::null();
+    if (value.isNumber())
+        return WebCLKernelTypeBasicValue::create(value.asNumber());
+    if (value.isObject()) {
+        if (isJSArray(&scriptState->globalData(), value)) {
+            RefPtr<WebCLKernelTypeVector> webCLKernelTypeVector = WebCLKernelTypeVector::create();
+            JSArray* array = asArray(value);
+            unsigned length = array->length();
+            for (unsigned i = 0; i < length; i++) {
+                JSValue element = array->getIndex(i);
+                RefPtr<WebCLKernelTypeValue> elementValue = jsToWebCLKernelTypeValue(scriptState, element);
+                if (!elementValue) {
+                    ASSERT_NOT_REACHED();
+                    elementValue = WebCLKernelTypeValue::null();
+                }
+                webCLKernelTypeVector->pushValue(elementValue);
+            }
+            return webCLKernelTypeVector;
+        }
+    }
+    ASSERT_NOT_REACHED();
+    return 0;
+}
+
+PassRefPtr<WebCLKernelTypeValue> ScriptValue::toWebCLKernelTypeValue(ScriptState* scriptState) const
+{
+    return jsToWebCLKernelTypeValue(scriptState, m_value.get());
+}
+#endif // ENABLE(WEBCL)
 
 } // namespace WebCore

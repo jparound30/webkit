@@ -1,0 +1,290 @@
+<html>
+<head>
+<title>WebCL Hello World</title>
+<meta HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
+
+<style type="text/css">
+.info {
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	font-size: 14px;
+color: white;
+       text-align: right;
+}
+</style>
+
+<!-- <script src="opencl.js"></script> -->
+
+<script id="square" type="x-kernel">
+__kernel void square(
+		__global float* input,
+		__global float* output,
+		const unsigned int count)
+{
+	int i = get_global_id(0);
+	if(i < count)
+		output[i] = input[i] * input[i];
+}
+</script>
+
+<script>
+function getKernel (id ) {
+	var kernelScript = document.getElementById( id );
+	if(kernelScript === null || kernelScript.type !== "x-kernel")
+		return null;
+
+	return kernelScript.firstChild.textContent;
+	/*var k = kernelScript.firstChild;
+	  var str = "";
+
+	  while ( k ) {
+	  if ( k.nodeType == 3 ) {
+	  str += k.textContent;
+	  }
+	  k = k.nextSibling;
+	  }
+	  return str;*/
+}
+</script>
+
+<script>
+var DATA_SIZE = 1024;
+
+// Global data (moved out of main function so can access in clFinish callback),
+// this should be moved to a UserData object.
+//
+var err;									// error code returned from API calls
+
+var data = new Float32Array(DATA_SIZE);		// original data set given to device
+var results = new Float32Array(DATA_SIZE); 	// results returned from device
+var count;									// number of inputs and results returned
+var correct;								// number of correct results returned
+
+var cl;										// OpenCL context
+var platform_ids;							// array of compue platform ids
+var platform_id;							// compute platform id
+var device_ids;								// array of device ids
+var device_id;								// compute device id
+var context;								// compute context
+var queue;									// compute command queue
+var program;								// compute program
+var kernel;									// compute kernel
+
+var input;									// device memory used for the input array
+var output;									// device memory used for the output array
+
+var globalWorkSize = new Int32Array(1);		// global domain size for our calculation
+var localWorkSize = new Int32Array(1);		// local domain size for our calculation
+
+function InitCL()
+{
+	// Fill our data set with random float values
+	//
+	count = DATA_SIZE;
+	for(var i = 0; i < count; i++)
+		data[i] = Math.random();
+
+	if(typeof(WebCLComputeContext) === "undefined") {
+		console.error("WebCLComputeContext is yet to be undefined");
+		return null;
+	}
+
+	cl = new WebCLComputeContext();
+
+	if(cl === null)
+	{
+		console.error("Failed to create WebCL context");
+		return;
+	}
+
+	platform_ids = cl.getPlatformIDs();
+	if (cl.getError() !== cl.SUCCESS)
+	{
+		console.error("Failed to get platform IDs");
+		return;
+	}
+	if(platform_ids.length === 0)
+	{
+		console.error("No platforms available");
+		return;
+	}
+	platform_id = platform_ids[0];
+
+	// Connect to a compute device
+	//
+	var gpu = true;
+	device_ids = cl.getDeviceIDs(platform_id, gpu ? cl.DEVICE_TYPE_GPU : cl.DEVICE_TYPE_CPU);
+	if (cl.getError() !== cl.SUCCESS)
+	{
+		console.error("Failed to get device IDs");
+		return;
+	}
+	if(device_ids.length === 0)
+	{
+		console.error("No devices available");
+		return;
+	}
+	device_id = device_ids[0];
+
+	// Create a compute context
+	//
+	context = cl.createContext(null, device_id, null, null);
+	// also allow the following form since can use one or more devices
+	// context = cl.createContext(null, device_ids, null, null);
+	if (cl.getError() !== cl.SUCCESS)
+	{
+		console.error("Failed to create a compute context");
+		return;
+	}
+
+	// Create a command queue
+	//
+	queue = cl.createCommandQueue(context, device_id, null);
+	if (cl.getError() !== cl.SUCCESS)
+	{
+		console.error("Failed to create a command queue");
+		return;
+	}
+
+	// Create the compute program from the source buffer
+	//
+	var kernelSource = getKernel("square");
+	if (kernelSource === null)
+	{
+		console.error("No kernel named: " + "square");
+		return;
+	}
+	program = cl.createProgramWithSource(context, kernelSource);
+	if (cl.getError() !== cl.SUCCESS)
+	{
+		console.error("Failed to create compute program");
+		return;
+	}
+
+	// Build the program executable
+	//
+	cl.buildProgram(program, null, null, null);
+	// also allow the following form since can provide a device list
+	// cl.buildProgram(program, device_ids, null, null, null);
+	if (cl.getError() !== cl.SUCCESS)
+	{
+		console.error("Failed to build program executable");
+		var info = cl.getProgramBuildInfo(program, device_id, cl.PROGRAM_BUILD_LOG);
+		console.log(info);
+		return;
+	}
+
+	// Create the compute kernel in the program we wish to run
+	//
+	kernel = cl.createKernel(program, "square");
+	if (cl.getError() !== cl.SUCCESS)
+	{
+		console.error("Failed to create compute kernel");
+		return;
+	}
+
+	// Create the input and output arrays in device memory for our calculation
+	//
+	input = cl.createBuffer(context,  cl.MEM_READ_ONLY,  Float32Array.BYTES_PER_ELEMENT * count, null);
+	output = cl.createBuffer(context, cl.MEM_WRITE_ONLY, Float32Array.BYTES_PER_ELEMENT * count, null);
+	if (input === null || output === null)
+	{
+		console.error("Failed to allocate device memory");
+		return;
+	}
+
+	// Write our data set into the input array in device memory
+	//
+	cl.enqueueWriteBuffer(queue, input, true, 0, Float32Array.BYTES_PER_ELEMENT * count, data, null);
+	if (cl.getError() !== cl.SUCCESS)
+	{
+		console.error("Failed to write to source array");
+		return;
+	}
+
+	// Set the arguments to our compute kernel
+	//
+	cl.setKernelArgGlobal(kernel, 0, input);
+	cl.setKernelArgGlobal(kernel, 1, output);
+	cl.setKernelArg(kernel, 2, count, cl.KERNEL_ARG_INT);
+	if (cl.getError()!== cl.SUCCESS)
+	{
+		console.error("Failed to set kernel arguments");
+		return;
+	}
+
+	// Get the maximum work group size for executing the kernel on the device
+	//
+	var workGroupSize = cl.getKernelWorkGroupInfo(kernel, device_id, cl.KERNEL_WORK_GROUP_SIZE);
+	if (cl.getError() !== cl.SUCCESS)
+	{
+		console.error("Failed to retrieve kernel work group info");
+		return;
+	}
+
+	globalWorkSize[0] = count;
+	localWorkSize[0] = workGroupSize;
+
+	// Execute the kernel over the entire range of our 1d input data set
+	// using the maximum number of work group items for this device
+	//
+	cl.enqueueNDRangeKernel(queue, kernel, 1, 0, globalWorkSize, localWorkSize, null);
+	if (cl.getError() !== cl.SUCCESS)
+	{
+		console.error("Failed to execute kernel");
+		return;
+	}
+
+	// Wait for the command queue to get serviced before reading back results
+	//
+	cl.finish(queue, GetResults, cl);
+}
+
+function  GetResults(cl)
+{
+	// Read back the results from the device to verify the output
+	//
+	cl.enqueueReadBuffer(queue, output, true, 0, Float32Array.BYTES_PER_ELEMENT * count, results, null);
+	if (cl.getError() !== cl.SUCCESS)
+	{
+		console.error("Failed to read output array");
+		return;
+	}
+
+	// Validate our results (to 6 figure accuracy)
+	//
+	var TOINT = function(x) { return Math.floor(1000000 * x); };
+
+	correct = 0;
+	for(var i = 0; i < count; i++)
+	{
+		if(TOINT(results[i]) === TOINT(data[i] * data[i]))
+			correct++;
+	}
+
+	// Print a brief summary detailing the results
+	//
+	var msg = "Computed " + correct + "/" + count + " correct values";
+	document.getElementById("msg").firstChild.nodeValue = msg;
+
+	// Shutdown and cleanup
+	//
+	cl.releaseMemObject(input);
+	cl.releaseMemObject(output);
+	cl.releaseProgram(program);
+	cl.releaseKernel(kernel);
+	cl.releaseCommandQueue(queue);
+	cl.releaseContext(context);
+}
+</script>
+</head>
+
+<body onload="InitCL()" bgcolor="black">
+<div style="position:absolute; left:0px; top:0px">
+<div          class="info" style="position:absolute; left:10px; top:15px; width:40px;">Results:</div>
+<div id="msg" class="info" style="position:absolute; left:60px; top:15px; width:260px;">XX</div>
+</div>
+</body>
+</html>
+
+

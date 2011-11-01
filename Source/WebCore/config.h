@@ -223,3 +223,6 @@ typedef float CGFloat;
 #define WTF_USE_AVFOUNDATION 1
 #endif
 
+// SP
+#define ENABLE_WEBCL 1
+

@@ -129,6 +129,7 @@ my (
     $webTimingSupport,
     $workersSupport,
     $xsltSupport,
+    $webclSupport,
 );
 
 my @features = (
@@ -323,6 +324,12 @@ my @features = (
 
     { option => "xslt", desc => "Toggle XSLT support",
       define => "ENABLE_XSLT", default => 1, value => \$xsltSupport },
+	
+	#SP
+	{ option => "webcl", desc => "Toggle WebCL support",
+          define => "ENABLE_WEBCL", default => 1, value => \$webclSupport },
+
+
 );
 
 # Update defaults from Qt's project file

@@ -48,6 +48,7 @@ VPATH = \
     $(WebCore)/svg \
     $(WebCore)/testing \
     $(WebCore)/websockets \
+    $(WebCore)/webcl \
 #
 
 DOM_CLASSES = \
@@ -563,6 +564,22 @@ DOM_CLASSES = \
     XPathNSResolver \
     XPathResult \
     XSLTProcessor \
+    WebCLComputeContext \
+    WebCLPlatformIDList \
+    WebCLPlatformID \
+    WebCLDeviceIDList \
+    WebCLDeviceID \
+    WebCLContext \
+    WebCLCommandQueue \
+    WebCLProgram \
+    WebCLKernel \
+    WebCLKernelList \
+    WebCLEvent \
+    WebCLEventList \
+    WebCLMem \
+    WebCLSampler \
+    WebCLBuffer \
+    WebCLImage \
 #
 
 .PHONY : all

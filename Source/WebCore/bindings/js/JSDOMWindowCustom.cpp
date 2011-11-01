@@ -73,6 +73,11 @@
 #include "JSWebSocket.h"
 #endif
 
+// SP
+#if ENABLE(WEBCL)
+#include "JSWebCLComputeContext.h"
+#endif
+
 using namespace JSC;
 
 namespace WebCore {
@@ -613,6 +618,15 @@ static Settings* settingsForWindow(const JSDOMWindow* window)
     if (Frame* frame = window->impl()->frame())
         return frame->settings();
     return 0;
+}
+#endif
+
+// SP
+#if ENABLE(WEBCL)
+JSValue JSDOMWindow::webCLComputeContext(ExecState* exec) const
+
+{
+    return getDOMConstructor<JSWebCLComputeContextConstructor>(exec, this);
 }
 #endif
 
