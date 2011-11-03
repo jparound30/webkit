@@ -305,7 +305,7 @@ void RenderMenuList::showPopup()
     // the actual width of the element to size the popup.
     FloatPoint absTopLeft = localToAbsolute(FloatPoint(), false, true);
     LayoutRect absBounds = absoluteBoundingBoxRectIgnoringTransforms();
-    absBounds.setLocation(roundedIntPoint(absTopLeft));
+    absBounds.setLocation(roundedLayoutPoint(absTopLeft));
     HTMLSelectElement* select = toHTMLSelectElement(node());
     m_popup->show(absBounds, document()->view(), select->optionToListIndex(select->selectedIndex()));
 }
@@ -325,7 +325,7 @@ void RenderMenuList::valueChanged(unsigned listIndex, bool fireOnChange)
         return;
     
     HTMLSelectElement* select = toHTMLSelectElement(node());
-    select->setSelectedIndexByUser(select->listToOptionIndex(listIndex), true, fireOnChange);
+    select->optionSelectedByUser(select->listToOptionIndex(listIndex), fireOnChange);
 }
 
 #if ENABLE(NO_LISTBOX_RENDERING)
@@ -502,13 +502,13 @@ int RenderMenuList::clientInsetRight() const
     return 0;
 }
 
-int RenderMenuList::clientPaddingLeft() const
+LayoutUnit RenderMenuList::clientPaddingLeft() const
 {
     return paddingLeft() + m_innerBlock->paddingLeft();
 }
 
 const int endOfLinePadding = 2;
-int RenderMenuList::clientPaddingRight() const
+LayoutUnit RenderMenuList::clientPaddingRight() const
 {
     if (style()->appearance() == MenulistPart || style()->appearance() == MenulistButtonPart) {
         // For these appearance values, the theme applies padding to leave room for the

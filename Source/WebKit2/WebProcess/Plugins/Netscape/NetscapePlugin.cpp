@@ -118,10 +118,9 @@ void NetscapePlugin::invalidate(const NPRect* invalidRect)
     IntRect rect;
     
     if (!invalidRect)
-        rect = IntRect(0, 0, m_frameRectInWindowCoordinates.width(), m_frameRectInWindowCoordinates.height());
+        rect = IntRect(0, 0, m_pluginSize.width(), m_pluginSize.height());
     else
-        rect = IntRect(invalidRect->left, invalidRect->top,
-                       invalidRect->right - invalidRect->left, invalidRect->bottom - invalidRect->top);
+        rect = IntRect(invalidRect->left, invalidRect->top, invalidRect->right - invalidRect->left, invalidRect->bottom - invalidRect->top);
     
     if (platformInvalidate(rect))
         return;
@@ -391,6 +390,11 @@ void NetscapePlugin::unscheduleTimer(unsigned timerID)
     timer->stop();
 }
 
+double NetscapePlugin::contentsScaleFactor()
+{
+    return controller()->contentsScaleFactor();
+}
+
 String NetscapePlugin::proxiesForURL(const String& urlString)
 {
     return controller()->proxiesForURL(urlString);
@@ -409,7 +413,7 @@ void NetscapePlugin::setCookiesForURL(const String& urlString, const String& coo
 bool NetscapePlugin::getAuthenticationInfo(const ProtectionSpace& protectionSpace, String& username, String& password)
 {
     return controller()->getAuthenticationInfo(protectionSpace, username, password);
-}
+}    
 
 NPError NetscapePlugin::NPP_New(NPMIMEType pluginType, uint16_t mode, int16_t argc, char* argn[], char* argv[], NPSavedData* savedData)
 {
@@ -479,20 +483,22 @@ NPError NetscapePlugin::NPP_SetValue(NPNVariable variable, void *value)
 
 void NetscapePlugin::callSetWindow()
 {
-#if PLUGIN_ARCHITECTURE(X11)
-    // We use a backing store as the painting area for the plugin.
-    m_npWindow.x = 0;
-    m_npWindow.y = 0;
-#else
-    m_npWindow.x = m_frameRectInWindowCoordinates.x();
-    m_npWindow.y = m_frameRectInWindowCoordinates.y();
-#endif
-    m_npWindow.width = m_frameRectInWindowCoordinates.width();
-    m_npWindow.height = m_frameRectInWindowCoordinates.height();
-    m_npWindow.clipRect.top = m_clipRectInWindowCoordinates.y();
-    m_npWindow.clipRect.left = m_clipRectInWindowCoordinates.x();
-    m_npWindow.clipRect.bottom = m_clipRectInWindowCoordinates.maxY();
-    m_npWindow.clipRect.right = m_clipRectInWindowCoordinates.maxX();
+    if (wantsWindowRelativeNPWindowCoordinates()) {
+        m_npWindow.x = m_frameRectInWindowCoordinates.x();
+        m_npWindow.y = m_frameRectInWindowCoordinates.y();
+        m_npWindow.clipRect.top = m_clipRectInWindowCoordinates.y();
+        m_npWindow.clipRect.left = m_clipRectInWindowCoordinates.x();
+    } else {
+        m_npWindow.x = 0;
+        m_npWindow.y = 0;
+        m_npWindow.clipRect.top = m_clipRect.y();
+        m_npWindow.clipRect.left = m_clipRect.x();
+    }
+
+    m_npWindow.width = m_pluginSize.width();
+    m_npWindow.height = m_pluginSize.height();
+    m_npWindow.clipRect.right = m_npWindow.clipRect.left + m_clipRect.width();
+    m_npWindow.clipRect.bottom = m_npWindow.clipRect.top + m_clipRect.height();
 
     NPP_SetWindow(&m_npWindow);
 }
@@ -640,16 +646,22 @@ void NetscapePlugin::paint(GraphicsContext* context, const IntRect& dirtyRect)
 
 PassRefPtr<ShareableBitmap> NetscapePlugin::snapshot()
 {
-    if (!supportsSnapshotting() || m_frameRectInWindowCoordinates.isEmpty())
+    if (!supportsSnapshotting() || m_pluginSize.isEmpty())
         return 0;
 
     ASSERT(m_isStarted);
-    
-    RefPtr<ShareableBitmap> bitmap = ShareableBitmap::createShareable(m_frameRectInWindowCoordinates.size(), ShareableBitmap::SupportsAlpha);
+
+    IntSize backingStoreSize = m_pluginSize;
+    backingStoreSize.scale(contentsScaleFactor());
+
+    RefPtr<ShareableBitmap> bitmap = ShareableBitmap::createShareable(backingStoreSize, ShareableBitmap::SupportsAlpha);
     OwnPtr<GraphicsContext> context = bitmap->createGraphicsContext();
 
-    context->translate(-m_frameRectInWindowCoordinates.x(), -m_frameRectInWindowCoordinates.y());
+    // FIXME: We should really call applyDeviceScaleFactor instead of scale, but that ends up calling into WKSI
+    // which we currently don't have initiated in the plug-in process.
+    context->scale(FloatSize(contentsScaleFactor(), contentsScaleFactor()));
 
+    context->translate(-m_frameRectInWindowCoordinates.x(), -m_frameRectInWindowCoordinates.y());
     platformPaint(context.get(), m_frameRectInWindowCoordinates, true);
     
     return bitmap.release();
@@ -660,22 +672,6 @@ bool NetscapePlugin::isTransparent()
     return m_isTransparent;
 }
 
-void NetscapePlugin::deprecatedGeometryDidChange(const IntRect& frameRectInWindowCoordinates, const IntRect& clipRectInWindowCoordinates)
-{
-    ASSERT(m_isStarted);
-
-    if (m_frameRectInWindowCoordinates == frameRectInWindowCoordinates && m_clipRectInWindowCoordinates == clipRectInWindowCoordinates) {
-        // Nothing to do.
-        return;
-    }
-
-    m_frameRectInWindowCoordinates = frameRectInWindowCoordinates;
-    m_clipRectInWindowCoordinates = clipRectInWindowCoordinates;
-
-    platformGeometryDidChange();
-    callSetWindow();
-}
-
 void NetscapePlugin::geometryDidChange(const IntSize& pluginSize, const IntRect& clipRect, const AffineTransform& pluginToRootViewTransform)
 {
     ASSERT(m_isStarted);
@@ -684,6 +680,12 @@ void NetscapePlugin::geometryDidChange(const IntSize& pluginSize, const IntRect&
         // Nothing to do.
         return;
     }
+
+    bool shouldCallWindow = true;
+
+    // If the plug-in doesn't want window relative coordinates, we don't need to call setWindow unless its size or clip rect changes.
+    if (!wantsWindowRelativeCoordinates() && m_pluginSize == pluginSize && m_clipRect == clipRect)
+        shouldCallWindow = false;
 
     m_pluginSize = pluginSize;
     m_clipRect = clipRect;
@@ -696,6 +698,10 @@ void NetscapePlugin::geometryDidChange(const IntSize& pluginSize, const IntRect&
     m_clipRectInWindowCoordinates = IntRect(clipRectLocationInWindowCoordinates, m_clipRect.size());
 
     platformGeometryDidChange();
+
+    if (!shouldCallWindow)
+        return;
+
     callSetWindow();
 }
 
@@ -879,6 +885,16 @@ NPObject* NetscapePlugin::pluginScriptableNPObject()
 #endif    
 
     return scriptableNPObject;
+}
+
+void NetscapePlugin::contentsScaleFactorChanged(float scaleFactor)
+{
+    ASSERT(m_isStarted);
+
+#if PLUGIN_ARCHITECTURE(MAC)
+    double contentsScaleFactor = scaleFactor;
+    NPP_SetValue(NPNVcontentsScaleFactor, &contentsScaleFactor);
+#endif
 }
 
 void NetscapePlugin::privateBrowsingStateChanged(bool privateBrowsingEnabled)

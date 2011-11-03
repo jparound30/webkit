@@ -127,7 +127,7 @@ namespace JSC {
         virtual bool hasInstance(ExecState*, JSValue, JSValue prototypeProperty);
 
         virtual void getPropertyNames(ExecState*, PropertyNameArray&, EnumerationMode mode = ExcludeDontEnumProperties);
-        virtual void getOwnPropertyNames(ExecState*, PropertyNameArray&, EnumerationMode mode = ExcludeDontEnumProperties);
+        static void getOwnPropertyNames(JSObject*, ExecState*, PropertyNameArray&, EnumerationMode);
 
         JSValue toPrimitive(ExecState*, PreferredPrimitiveType = NoPreference) const;
         bool toBoolean(ExecState*) const;
@@ -186,9 +186,9 @@ namespace JSC {
         void initializeGetterSetterProperty(ExecState*, const Identifier&, GetterSetter*, unsigned attributes);
 
         static void defineGetter(JSObject*, ExecState*, const Identifier& propertyName, JSObject* getterFunction, unsigned attributes = 0);
-        virtual void defineSetter(ExecState*, const Identifier& propertyName, JSObject* setterFunction, unsigned attributes = 0);
-        virtual JSValue lookupGetter(ExecState*, const Identifier& propertyName);
-        virtual JSValue lookupSetter(ExecState*, const Identifier& propertyName);
+        static void defineSetter(JSObject*, ExecState*, const Identifier& propertyName, JSObject* setterFunction, unsigned attributes = 0);
+        JSValue lookupGetter(ExecState*, const Identifier& propertyName);
+        JSValue lookupSetter(ExecState*, const Identifier& propertyName);
         virtual bool defineOwnProperty(ExecState*, const Identifier& propertyName, PropertyDescriptor&, bool shouldThrow);
 
         bool isGlobalObject() const;

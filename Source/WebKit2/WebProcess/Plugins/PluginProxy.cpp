@@ -97,12 +97,10 @@ bool PluginProxy::initialize(const Parameters& parameters)
     creationParameters.windowNPObjectID = windowNPObjectID();
     creationParameters.parameters = parameters;
     creationParameters.userAgent = controller()->userAgent();
+    creationParameters.contentsScaleFactor = contentsScaleFactor();
     creationParameters.isPrivateBrowsingEnabled = controller()->isPrivateBrowsingEnabled();
 #if USE(ACCELERATED_COMPOSITING)
     creationParameters.isAcceleratedCompositingEnabled = controller()->isAcceleratedCompositingEnabled();
-#endif
-#if PLATFORM(MAC)
-    creationParameters.contentsScaleFactor = contentsScaleFactor();
 #endif
 
     bool result = false;
@@ -148,10 +146,7 @@ void PluginProxy::paint(GraphicsContext* graphicsContext, const IntRect& dirtyRe
         m_pluginBackingStoreContainsValidData = true;
     }
 
-    IntRect dirtyRectInPluginCoordinates = dirtyRect;
-    dirtyRectInPluginCoordinates.move(-m_frameRectInWindowCoordinates.x(), -m_frameRectInWindowCoordinates.y());
-
-    m_backingStore->paint(*graphicsContext, contentsScaleFactor(), dirtyRect.location(), dirtyRectInPluginCoordinates);
+    m_backingStore->paint(*graphicsContext, contentsScaleFactor(), dirtyRect.location(), dirtyRect);
 
     if (m_waitingForPaintInResponseToUpdate) {
         m_waitingForPaintInResponseToUpdate = false;
@@ -207,12 +202,6 @@ void PluginProxy::geometryDidChange()
     }
 
     m_connection->connection()->send(Messages::PluginControllerProxy::GeometryDidChange(m_pluginSize, m_clipRect, m_pluginToRootViewTransform, frameRectInWindowCoordinates, contentsScaleFactor(), pluginBackingStoreHandle), m_pluginInstanceID, CoreIPC::DispatchMessageEvenWhenWaitingForSyncReply);
-}
-
-void PluginProxy::deprecatedGeometryDidChange(const IntRect& frameRectInWindowCoordinates, const IntRect& clipRectInWindowCoordinates)
-{
-    m_frameRectInWindowCoordinates = frameRectInWindowCoordinates;
-    m_clipRectInWindowCoordinates = clipRectInWindowCoordinates;
 }
 
 void PluginProxy::geometryDidChange(const IntSize& pluginSize, const IntRect& clipRect, const AffineTransform& pluginToRootViewTransform)
@@ -379,11 +368,6 @@ void PluginProxy::windowVisibilityChanged(bool isVisible)
     m_connection->connection()->send(Messages::PluginControllerProxy::WindowVisibilityChanged(isVisible), m_pluginInstanceID);
 }
 
-void PluginProxy::contentsScaleFactorChanged(float scaleFactor)
-{
-    geometryDidChange();
-}
-
 uint64_t PluginProxy::pluginComplexTextInputIdentifier() const
 {
     return m_pluginInstanceID;
@@ -394,6 +378,11 @@ void PluginProxy::sendComplexTextInput(const String& textInput)
     m_connection->connection()->send(Messages::PluginControllerProxy::SendComplexTextInput(textInput), m_pluginInstanceID);
 }
 #endif
+
+void PluginProxy::contentsScaleFactorChanged(float scaleFactor)
+{
+    geometryDidChange();
+}
 
 void PluginProxy::privateBrowsingStateChanged(bool isPrivateBrowsingEnabled)
 {
@@ -416,7 +405,7 @@ bool PluginProxy::handleScroll(ScrollDirection, ScrollGranularity)
 
 bool PluginProxy::wantsWindowRelativeCoordinates()
 {
-    return true;
+    return false;
 }
 
 Scrollbar* PluginProxy::horizontalScrollbar()
@@ -456,11 +445,7 @@ void PluginProxy::getAuthenticationInfo(const ProtectionSpace& protectionSpace, 
 
 float PluginProxy::contentsScaleFactor()
 {
-#if PLATFORM(MAC)
     return controller()->contentsScaleFactor();
-#else
-    return 1;
-#endif
 }
 
 bool PluginProxy::updateBackingStore()

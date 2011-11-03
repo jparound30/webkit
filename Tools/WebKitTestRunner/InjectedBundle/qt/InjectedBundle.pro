@@ -52,6 +52,8 @@ prependJavaScriptCoreLib(../../../JavaScriptCore)
 include(../../../../Source/WebKit2/WebKit2.pri)
 prependWebKit2Lib(../../../WebKit2)
 
+include(../../../../Source/WebCore/features.pri) # For ENABLE_TOUCH_EVENTS
+
 INCLUDEPATH = \
     $$PWD \
     $$PWD/.. \
@@ -66,6 +68,7 @@ INCLUDEPATH = \
     $$PWD/../../../../Source/WebCore/testing/js \
     $$PWD/../../../../Source/WebKit2 \
     $$PWD/../../../../Source/WebKit2/Shared \
+    $$PWD/../../../../Source/WebKit/qt/WebCoreSupport \
     $$OUTPUT_DIR/include/QtWebKit \
     $$OUTPUT_DIR/include \
     $$GENERATED_SOURCES_DIR \

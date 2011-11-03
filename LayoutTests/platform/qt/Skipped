@@ -122,9 +122,10 @@ http/tests/websocket/tests/hybi/send-file-blob.html
 http/tests/websocket/tests/hybi/send-file-blob-fail.html
 
 # ENABLE(QUOTA) is disabled.
+storage/storageinfo-missing-arguments.html
+storage/storageinfo-no-callbacks.html
 storage/storageinfo-query-usage.html
 storage/storageinfo-request-quota.html
-storage/storageinfo-no-callbacks.html
 
 # ENABLE(WEBGL) is disabled.
 http/tests/canvas/webgl
@@ -222,41 +223,6 @@ fast/dom/MicroData
 # =========================================================================== #
 #       Feature not yet supported.                                            #
 # =========================================================================== #
-
-# Tests for <track>.  Feature is not yet functional.
-# https://bugs.webkit.org/show_bug.cgi?id=43668
-media/track/track-mutable.html
-media/track/track-text-track-cue-list.html
-media/track/track-text-track.html
-media/track/track-webvtt-tc000-empty.html
-media/track/track-webvtt-tc001-utf8.html
-media/track/track-webvtt-tc002-bom.html
-media/track/track-webvtt-tc003-newlines.html
-media/track/track-webvtt-tc004-magic-header.html
-media/track/track-webvtt-tc005-header-comment.html
-media/track/track-webvtt-tc006-cue-identifiers.html
-media/track/track-webvtt-tc007-cue-no-id.html
-media/track/track-webvtt-tc008-timings-no-hours.html
-media/track/track-webvtt-tc009-timings-hour.html
-media/track/track-webvtt-tc010-no-timings.html
-media/track/track-webvtt-tc011-blank-lines.html
-media/track/track-webvtt-tc012-out-of-order.html
-media/track/track-webvtt-tc013-settings.html
-media/track/track-webvtt-tc014-alignment.html
-media/track/track-webvtt-tc015-positioning.html
-media/track/track-webvtt-tc016-align-positioning.html
-media/track/track-webvtt-tc017-line-position.html
-media/track/track-webvtt-tc018-align-text-line-position.html
-media/track/track-webvtt-tc019-cue-size.html
-media/track/track-webvtt-tc020-cue-size-align.html
-media/track/track-webvtt-tc021-valign.html
-media/track/track-webvtt-tc022-entities.html
-media/track/track-webvtt-tc023-markup.html
-media/track/track-webvtt-tc024-timestamp.html
-media/track/track-webvtt-tc025-class-markup.html
-media/track/track-webvtt-tc026-voice.html
-media/track/track-webvtt-tc027-empty-cue.html
-media/track/track-webvtt-tc028-unsupported-markup.html
 
 # Tests for MediaSource API. Feature is not yet functional.
 # https://bugs.webkit.org/show_bug.cgi?id=64731
@@ -2051,6 +2017,7 @@ http/tests/inspector/console-websocket-error.html
 # https://bugs.webkit.org/show_bug.cgi?id=52810
 fast/repaint/moving-shadow-on-container.html
 fast/repaint/moving-shadow-on-path.html
+svg/as-image/img-preserveAspectRatio-support-1.html
 svg/batik/masking/maskRegions.svg
 svg/clip-path/deep-nested-clip-in-mask-different-unitTypes.svg
 svg/css/stars-with-shadow.html
@@ -2069,6 +2036,7 @@ svg/custom/relative-sized-inner-svg.xhtml
 svg/custom/relative-sized-use-on-symbol.xhtml
 svg/custom/relative-sized-use-without-attributes-on-symbol.xhtml
 svg/custom/resource-invalidate-on-target-update.svg
+svg/custom/scrolling-embedded-svg-file-image-repaint-problem.html
 svg/custom/stroked-pattern.svg
 svg/custom/text-rotated-gradient.svg
 svg/custom/use-css-events.svg

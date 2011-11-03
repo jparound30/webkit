@@ -117,9 +117,6 @@ public:
     // Returns whether the plug-in is transparent or not.
     virtual bool isTransparent() = 0;
 
-    // Tells the plug-in that either the plug-ins frame rect or its clip rect has changed. Both rects are in window coordinates.
-    virtual void deprecatedGeometryDidChange(const WebCore::IntRect& frameRect, const WebCore::IntRect& clipRect) = 0;
-
     // Tells the plug-in that its geometry has changed. The clip rect is in plug-in coordinates, and the affine transform can be used
     // to convert from root view coordinates to plug-in coordinates.
     virtual void geometryDidChange(const WebCore::IntSize& pluginSize, const WebCore::IntRect& clipRect, const WebCore::AffineTransform& pluginToRootViewTransform) = 0;
@@ -197,15 +194,15 @@ public:
     // Tells the plug-in about window visibility changes.
     virtual void windowVisibilityChanged(bool) = 0;
 
-    // Tells the plug-in about scale factor changes.
-    virtual void contentsScaleFactorChanged(float) = 0;
-
     // Get the per complex text input identifier.
     virtual uint64_t pluginComplexTextInputIdentifier() const = 0;
 
     // Send the complex text input to the plug-in.
     virtual void sendComplexTextInput(const String& textInput) = 0;
 #endif
+
+    // Tells the plug-in about scale factor changes.
+    virtual void contentsScaleFactorChanged(float) = 0;
 
     // Called when the private browsing state for this plug-in changes.
     virtual void privateBrowsingStateChanged(bool) = 0;

@@ -54,6 +54,7 @@
 #include "WebResourceLoadClient.h"
 #include "WebUIClient.h"
 #include <WebCore/DragActions.h>
+#include <WebCore/DragSession.h>
 #include <WebCore/HitTestResult.h>
 #include <WebCore/PlatformScreen.h>
 #include <WebCore/ScrollTypes.h>
@@ -346,6 +347,7 @@ public:
 #endif
 #if USE(TILED_BACKING_STORE)
     void setFixedVisibleContentRect(const WebCore::IntRect&);
+    void setViewportSize(const WebCore::IntSize&);
 #endif
 
     void handleMouseEvent(const NativeWebMouseEvent&);
@@ -466,7 +468,7 @@ public:
     void dragExited(WebCore::DragData*, const String& dragStorageName = String());
     void performDrag(WebCore::DragData*, const String& dragStorageName, const SandboxExtension::Handle&);
 
-    void didPerformDragControllerAction(uint64_t resultOperation);
+    void didPerformDragControllerAction(WebCore::DragSession);
     void dragEnded(const WebCore::IntPoint& clientPosition, const WebCore::IntPoint& globalPosition, uint64_t operation);
 #if PLATFORM(MAC)
     void setDragImage(const WebCore::IntPoint& clientPosition, const ShareableBitmap::Handle& dragImageHandle, bool isLinkDrag);
@@ -504,14 +506,10 @@ public:
 
     bool isValid();
     
-    WebCore::DragOperation dragOperation() { return m_currentDragOperation; }
-    void resetDragOperation() { m_currentDragOperation = WebCore::DragOperationNone; }
+    WebCore::DragSession dragSession() const { return m_currentDragSession; }
+    void resetDragOperation() { m_currentDragSession = WebCore::DragSession(); }
 
     void preferencesDidChange();
-
-#if USE(TILED_BACKING_STORE)
-    void setResizesToContentsUsingLayoutSize(const WebCore::IntSize&);
-#endif
 
     // Called by the WebContextMenuProxy.
     void contextMenuItemSelected(const WebContextMenuItemData&);
@@ -524,6 +522,7 @@ public:
 
 #if PLATFORM(QT)
     void findZoomableAreaForPoint(const WebCore::IntPoint&);
+    void didReceiveMessageFromNavigatorQtObject(const String&);
 #endif
 
     void advanceToNextMisspelling(bool startBeforeSelection) const;
@@ -607,6 +606,7 @@ private:
     void didRemoveFrameFromHierarchy(uint64_t frameID, CoreIPC::ArgumentDecoder*);
     void didDisplayInsecureContentForFrame(uint64_t frameID, CoreIPC::ArgumentDecoder*);
     void didRunInsecureContentForFrame(uint64_t frameID, CoreIPC::ArgumentDecoder*);
+    void didDetectXSSForFrame(uint64_t frameID, CoreIPC::ArgumentDecoder*);
     void frameDidBecomeFrameSet(uint64_t frameID, bool);
     void didStartProgress();
     void didChangeProgress(double);
@@ -926,7 +926,7 @@ private:
     unsigned m_pendingLearnOrIgnoreWordMessageCount;
 
     bool m_mainFrameHasCustomRepresentation;
-    WebCore::DragOperation m_currentDragOperation;
+    WebCore::DragSession m_currentDragSession;
 
     String m_pendingAPIRequestURL;
 

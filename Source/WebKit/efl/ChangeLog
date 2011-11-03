@@ -1,3 +1,61 @@
+2011-11-03  Dongwoo Im  <dw.im@samsung.com>
+
+        [EFL] Enable the Page Visibility API.
+        https://bugs.webkit.org/show_bug.cgi?id=69127
+
+        Reviewed by Adam Barth.
+
+        Implement methods to enable the Page Visibility API on EFL port.
+        (http://www.w3.org/TR/page-visibility)
+
+        When the visibility status of the page is changed, browser could
+        inform the status to WebKit using the APIs below.
+
+        * ewk/ewk_view.cpp: Add setter/getter functions to query/set page visibility state.
+        (ewk_view_visibility_state_set): Sets the page visibility status.
+        (ewk_view_visibility_state_get): Gets the page visibility status.
+        * ewk/ewk_view.h: Add public prototypes.
+
+2011-11-02  Tom Sepez  <tsepez@chromium.org>
+
+        XSSAuditor is silent
+        https://bugs.webkit.org/show_bug.cgi?id=70973
+
+        Reviewed by Adam Barth.
+
+        * WebCoreSupport/FrameLoaderClientEfl.cpp:
+        (WebCore::FrameLoaderClientEfl::didDetectXSS):
+        * WebCoreSupport/FrameLoaderClientEfl.h:
+
+2011-11-02  Ryuan Choi  <ryuan.choi@samsung.com>
+
+        [EFL] Fix build break when DEBUG_MEM_LEAKS is enabled.
+        https://bugs.webkit.org/show_bug.cgi?id=71349
+
+        Unreviewed build fix.
+
+        * ewk/ewk_tiled_backing_store.cpp:
+        (_ewk_tiled_backing_store_smart_del): remove wrong assignment
+        * ewk/ewk_tiled_matrix.cpp: define __STDC_FORMAT_MACROS to use PRIu64
+        (ewk_tile_matrix_free): s/tileMatrixm/tileMatrix
+        (ewk_tile_matrix_dbg): s/tm/tileMatrix
+        * ewk/ewk_tiled_model.cpp: define __STDC_FORMAT_MACROS to use PRIu64
+        (_ewk_tile_account_get): remove REALLOC_OR_OOM_RET
+
+2011-11-02  ChangSeok Oh  <shivamidow@gmail.com>
+
+        [EFL] Dirty area is not updated with requestAnimationFrame.
+        https://bugs.webkit.org/show_bug.cgi?id=70170
+
+        Some additional dirty areas caused by re-layout have ignored
+        since updateLayoutAndSytleIfNeedeRecursive is called after gathering dirty area to repaint.
+        So ewk_view_layout_if_needed_recursive is relocated before getting dirty areas.
+
+        Reviewed by Eric Seidel.
+
+        * ewk/ewk_view_single.cpp:
+        (_ewk_view_single_smart_repaints_process):
+
 2011-10-31  Raphael Kubo da Costa  <kubo@profusion.mobi>
 
         [EFL] Rename ewk_view_setting_scripts_window_open_{get,set} after r93833

@@ -206,7 +206,6 @@ void CCThreadProxy::setNeedsAnimate()
     s_ccThread->postTask(createCCThreadTask(this, &CCThreadProxy::setNeedsAnimateOnImplThread));
 }
 
-
 void CCThreadProxy::setNeedsCommit()
 {
     ASSERT(isMainThread());
@@ -216,12 +215,6 @@ void CCThreadProxy::setNeedsCommit()
     TRACE_EVENT("CCThreadProxy::setNeedsCommit", this, 0);
     m_commitRequested = true;
     s_ccThread->postTask(createCCThreadTask(this, &CCThreadProxy::setNeedsCommitOnImplThread));
-}
-
-void CCThreadProxy::setNeedsCommitThenRedraw()
-{
-    ASSERT(isMainThread());
-    setNeedsCommit();
 }
 
 void CCThreadProxy::setNeedsAnimateOnImplThread()
@@ -250,6 +243,26 @@ void CCThreadProxy::setNeedsRedraw()
     ASSERT(isMainThread());
     TRACE_EVENT("CCThreadProxy::setNeedsRedraw", this, 0);
     s_ccThread->postTask(createCCThreadTask(this, &CCThreadProxy::setNeedsRedrawOnImplThread));
+}
+
+void CCThreadProxy::setVisible(bool visible)
+{
+    ASSERT(isMainThread());
+    if (!visible) {
+        CCCompletionEvent completion;
+        s_ccThread->postTask(createCCThreadTask(this, &CCThreadProxy::didBecomeInvisibleOnImplThread, AllowCrossThreadAccess(&completion)));
+        return;
+    }
+    setNeedsRedraw();
+}
+
+void CCThreadProxy::didBecomeInvisibleOnImplThread(CCCompletionEvent* completion)
+{
+    ASSERT(isImplThread());
+    m_layerTreeHost->didBecomeInvisibleOnImplThread(m_layerTreeHostImpl.get());
+    m_schedulerOnImplThread->setVisible(false);
+    m_layerTreeHostImpl->setVisible(false);
+    completion->signal();
 }
 
 void CCThreadProxy::setNeedsRedrawOnImplThread()
@@ -431,6 +444,8 @@ void CCThreadProxy::scheduledActionCommit()
 
     m_layerTreeHost->beginCommitOnImplThread(m_layerTreeHostImpl.get());
     CCTextureUpdater updater(m_layerTreeHostImpl->contentsTextureAllocator());
+    m_layerTreeHostImpl->setVisible(m_layerTreeHost->visible());
+    m_schedulerOnImplThread->setVisible(m_layerTreeHostImpl->visible());
     m_layerTreeHost->finishCommitOnImplThread(m_layerTreeHostImpl.get());
 
     m_layerTreeHostImpl->commitComplete();
@@ -494,6 +509,7 @@ void CCThreadProxy::initializeImplOnImplThread(CCCompletionEvent* completion)
     const double displayRefreshIntervalMs = 1000.0 / 60.0;
     OwnPtr<CCFrameRateController> frameRateController = adoptPtr(new CCFrameRateController(CCDelayBasedTimeSource::create(displayRefreshIntervalMs, s_ccThread)));
     m_schedulerOnImplThread = CCScheduler::create(this, frameRateController.release());
+    m_schedulerOnImplThread->setVisible(m_layerTreeHostImpl->visible());
     completion->signal();
 }
 

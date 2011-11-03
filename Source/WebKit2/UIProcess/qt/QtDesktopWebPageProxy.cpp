@@ -55,8 +55,8 @@ static inline Qt::DropAction dragOperationToDropAction(unsigned dragOperation)
 QtDesktopWebPageProxy::QtDesktopWebPageProxy(QDesktopWebViewPrivate* desktopWebView, WKContextRef context, WKPageGroupRef pageGroup)
     : QtWebPageProxy(desktopWebView, desktopWebView, context, pageGroup)
 {
-    init();
     QWebPreferencesPrivate::get(preferences())->setAttribute(QWebPreferencesPrivate::AcceleratedCompositingEnabled, false);
+    init();
 }
 
 PassOwnPtr<DrawingAreaProxy> QtDesktopWebPageProxy::createDrawingAreaProxy()
@@ -86,7 +86,7 @@ void QtDesktopWebPageProxy::doneWithTouchEvent(const NativeWebTouchEvent&, bool 
 
 PassRefPtr<WebPopupMenuProxy> QtDesktopWebPageProxy::createPopupMenuProxy(WebPageProxy*)
 {
-    QQuickItem* webViewItem = static_cast<QDesktopWebViewPrivate*>(m_viewInterface)->q;
+    QQuickItem* webViewItem = static_cast<QDesktopWebViewPrivate*>(m_viewInterface)->webView();
     return WebPopupMenuProxyQtDesktop::create(m_webPageProxy.get(), webViewItem);
 }
 
@@ -116,6 +116,13 @@ bool QtDesktopWebPageProxy::handleEvent(QEvent* ev)
         return handleDragMoveEvent(reinterpret_cast<QDragMoveEvent*>(ev));
     case QEvent::Drop:
         return handleDropEvent(reinterpret_cast<QDropEvent*>(ev));
+    // Touch events only for WebKitTestRunner
+    case QEvent::TouchBegin:
+    case QEvent::TouchUpdate:
+    case QEvent::TouchEnd:
+        return handleTouchEvent(static_cast<QTouchEvent*>(ev));
+    default:
+        break;
     }
     return QtWebPageProxy::handleEvent(ev);
 }
@@ -215,8 +222,8 @@ bool QtDesktopWebPageProxy::handleDragMoveEvent(QDragMoveEvent* ev)
     // FIXME: Should not use QCursor::pos()
     DragData dragData(ev->mimeData(), ev->pos(), QCursor::pos(), dropActionToDragOperation(ev->possibleActions()));
     m_webPageProxy->dragUpdated(&dragData);
-    ev->setDropAction(dragOperationToDropAction(m_webPageProxy->dragOperation()));
-    if (m_webPageProxy->dragOperation() != DragOperationNone)
+    ev->setDropAction(dragOperationToDropAction(m_webPageProxy->dragSession().operation));
+    if (m_webPageProxy->dragSession().operation != DragOperationNone)
         ev->accept();
 
     ev->setAccepted(accepted);
@@ -231,11 +238,18 @@ bool QtDesktopWebPageProxy::handleDropEvent(QDropEvent* ev)
     DragData dragData(ev->mimeData(), ev->pos(), QCursor::pos(), dropActionToDragOperation(ev->possibleActions()));
     SandboxExtension::Handle handle;
     m_webPageProxy->performDrag(&dragData, String(), handle);
-    ev->setDropAction(dragOperationToDropAction(m_webPageProxy->dragOperation()));
+    ev->setDropAction(dragOperationToDropAction(m_webPageProxy->dragSession().operation));
     ev->accept();
 
     ev->setAccepted(accepted);
     return accepted;
+}
+
+bool QtDesktopWebPageProxy::handleTouchEvent(QTouchEvent* event)
+{
+    m_webPageProxy->handleTouchEvent(NativeWebTouchEvent(event));
+    event->accept();
+    return true;
 }
 
 void QtDesktopWebPageProxy::timerEvent(QTimerEvent* ev)

@@ -72,7 +72,6 @@ private:
     virtual PlatformLayer* pluginLayer();
 #endif
     virtual bool isTransparent();
-    virtual void deprecatedGeometryDidChange(const WebCore::IntRect& frameRectInWindowCoordinates, const WebCore::IntRect& clipRectInWindowCoordinates);
     virtual void geometryDidChange(const WebCore::IntSize& pluginSize, const WebCore::IntRect& clipRect, const WebCore::AffineTransform& pluginToRootViewTransform);
     virtual void visibilityDidChange();
     virtual void frameDidFinishLoading(uint64_t requestID);
@@ -99,11 +98,11 @@ private:
     virtual void windowFocusChanged(bool);
     virtual void windowAndViewFramesChanged(const WebCore::IntRect& windowFrameInScreenCoordinates, const WebCore::IntRect& viewFrameInWindowCoordinates);
     virtual void windowVisibilityChanged(bool);
-    virtual void contentsScaleFactorChanged(float);
     virtual uint64_t pluginComplexTextInputIdentifier() const;
     virtual void sendComplexTextInput(const String& textInput);
 #endif
 
+    virtual void contentsScaleFactorChanged(float);
     virtual void privateBrowsingStateChanged(bool);
     virtual bool getFormValue(String& formValue);
     virtual bool handleScroll(WebCore::ScrollDirection, WebCore::ScrollGranularity);
@@ -148,14 +147,6 @@ private:
 
     // A transform that can be used to convert from root view coordinates to plug-in coordinates.
     WebCore::AffineTransform m_pluginToRootViewTransform;
-
-    // FIXME: Get rid of the window coordinate based rects.
-
-    // The plug-in rect in window coordinates.
-    WebCore::IntRect m_frameRectInWindowCoordinates;
-
-    // The plug-in clip rect in window coordinates.
-    WebCore::IntRect m_clipRectInWindowCoordinates;
 
     // This is the backing store that we paint when we're told to paint.
     RefPtr<ShareableBitmap> m_backingStore;

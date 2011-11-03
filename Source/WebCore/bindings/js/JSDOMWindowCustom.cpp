@@ -381,12 +381,13 @@ void JSDOMWindow::getPropertyNames(ExecState* exec, PropertyNameArray& propertyN
     Base::getPropertyNames(exec, propertyNames, mode);
 }
 
-void JSDOMWindow::getOwnPropertyNames(ExecState* exec, PropertyNameArray& propertyNames, EnumerationMode mode)
+void JSDOMWindow::getOwnPropertyNames(JSObject* object, ExecState* exec, PropertyNameArray& propertyNames, EnumerationMode mode)
 {
+    JSDOMWindow* thisObject = static_cast<JSDOMWindow*>(object);
     // Only allow the window to enumerated by frames in the same origin.
-    if (!allowsAccessFrom(exec))
+    if (!thisObject->allowsAccessFrom(exec))
         return;
-    Base::getOwnPropertyNames(exec, propertyNames, mode);
+    Base::getOwnPropertyNames(thisObject, exec, propertyNames, mode);
 }
 
 void JSDOMWindow::defineGetter(JSObject* object, ExecState* exec, const Identifier& propertyName, JSObject* getterFunction, unsigned attributes)
@@ -403,12 +404,13 @@ void JSDOMWindow::defineGetter(JSObject* object, ExecState* exec, const Identifi
     Base::defineGetter(thisObject, exec, propertyName, getterFunction, attributes);
 }
 
-void JSDOMWindow::defineSetter(ExecState* exec, const Identifier& propertyName, JSObject* setterFunction, unsigned attributes)
+void JSDOMWindow::defineSetter(JSObject* object, ExecState* exec, const Identifier& propertyName, JSObject* setterFunction, unsigned attributes)
 {
+    JSDOMWindow* thisObject = static_cast<JSDOMWindow*>(object);
     // Only allow defining setters by frames in the same origin.
-    if (!allowsAccessFrom(exec))
+    if (!thisObject->allowsAccessFrom(exec))
         return;
-    Base::defineSetter(exec, propertyName, setterFunction, attributes);
+    Base::defineSetter(thisObject, exec, propertyName, setterFunction, attributes);
 }
 
 bool JSDOMWindow::defineOwnProperty(JSC::ExecState* exec, const JSC::Identifier& propertyName, JSC::PropertyDescriptor& descriptor, bool shouldThrow)
@@ -417,22 +419,6 @@ bool JSDOMWindow::defineOwnProperty(JSC::ExecState* exec, const JSC::Identifier&
     if (!allowsAccessFrom(exec))
         return false;
     return Base::defineOwnProperty(exec, propertyName, descriptor, shouldThrow);
-}
-
-JSValue JSDOMWindow::lookupGetter(ExecState* exec, const Identifier& propertyName)
-{
-    // Only allow looking-up getters by frames in the same origin.
-    if (!allowsAccessFrom(exec))
-        return jsUndefined();
-    return Base::lookupGetter(exec, propertyName);
-}
-
-JSValue JSDOMWindow::lookupSetter(ExecState* exec, const Identifier& propertyName)
-{
-    // Only allow looking-up setters by frames in the same origin.
-    if (!allowsAccessFrom(exec))
-        return jsUndefined();
-    return Base::lookupSetter(exec, propertyName);
 }
 
 // Custom Attributes

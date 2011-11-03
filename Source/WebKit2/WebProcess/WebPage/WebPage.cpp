@@ -79,6 +79,7 @@
 #include <WebCore/DocumentMarkerController.h>
 #include <WebCore/DragController.h>
 #include <WebCore/DragData.h>
+#include <WebCore/DragSession.h>
 #include <WebCore/EventHandler.h>
 #include <WebCore/FocusController.h>
 #include <WebCore/FormState.h>
@@ -1323,6 +1324,12 @@ void WebPage::touchEvent(const WebTouchEvent& touchEvent)
 
     send(Messages::WebPageProxy::DidReceiveEvent(static_cast<uint32_t>(touchEvent.type()), handled));
 }
+
+void WebPage::touchEventSyncForTesting(const WebTouchEvent& touchEvent, bool& handled)
+{
+    CurrentEvent currentEvent(touchEvent);
+    handled = handleTouchEvent(touchEvent, m_page.get());
+}
 #endif
 
 void WebPage::scroll(Page* page, ScrollDirection direction, ScrollGranularity granularity)
@@ -1809,7 +1816,7 @@ bool WebPage::handleEditingKeyboardEvent(KeyboardEvent* evt)
 void WebPage::performDragControllerAction(uint64_t action, WebCore::IntPoint clientPosition, WebCore::IntPoint globalPosition, uint64_t draggingSourceOperationMask, const WebCore::DragDataMap& dataMap, uint32_t flags)
 {
     if (!m_page) {
-        send(Messages::WebPageProxy::DidPerformDragControllerAction(DragOperationNone));
+        send(Messages::WebPageProxy::DidPerformDragControllerAction(WebCore::DragSession()));
         return;
     }
 
@@ -1840,7 +1847,7 @@ void WebPage::performDragControllerAction(uint64_t action, WebCore::IntPoint cli
 void WebPage::performDragControllerAction(uint64_t action, WebCore::DragData dragData)
 {
     if (!m_page) {
-        send(Messages::WebPageProxy::DidPerformDragControllerAction(DragOperationNone));
+        send(Messages::WebPageProxy::DidPerformDragControllerAction(WebCore::DragSession()));
 #if PLATFORM(QT)
         QMimeData* data = const_cast<QMimeData*>(dragData.platformData());
 #elif PLATFORM(GTK)
@@ -1884,7 +1891,7 @@ void WebPage::performDragControllerAction(uint64_t action, WebCore::DragData dra
 void WebPage::performDragControllerAction(uint64_t action, WebCore::IntPoint clientPosition, WebCore::IntPoint globalPosition, uint64_t draggingSourceOperationMask, const String& dragStorageName, uint32_t flags, const SandboxExtension::Handle& sandboxExtensionHandle)
 {
     if (!m_page) {
-        send(Messages::WebPageProxy::DidPerformDragControllerAction(DragOperationNone));
+        send(Messages::WebPageProxy::DidPerformDragControllerAction(WebCore::DragSession()));
         return;
     }
 

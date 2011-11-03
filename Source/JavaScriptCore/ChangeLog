@@ -1,3 +1,396 @@
+2011-11-03  Kentaro Hara  <haraken@chromium.org>
+
+        Fixed wrong implementation of doubleValue % 2^{64}.
+        https://bugs.webkit.org/show_bug.cgi?id=67980
+
+        Reviewed by Hajime Morita.
+
+        fast/events/constructors/progress-event-constructor.html was failing
+        because of the wrong implementation of conversion from an ECMAScript value
+        to an IDL unsigned long long value (Spec: http://www.w3.org/TR/WebIDL/#es-unsigned-long-long).
+        In particular, the calculation of doubleValue % 2^{64} was wrong.
+        This patch implemented it correctly in doubleToInteger() in wtf/MathExtras.h.
+
+        * wtf/MathExtras.h:
+        (doubleToInteger): Implemented the spec correctly.
+
+2011-11-03  Sheriff Bot  <webkit.review.bot@gmail.com>
+
+        Unreviewed, rolling out r99089.
+        http://trac.webkit.org/changeset/99089
+        https://bugs.webkit.org/show_bug.cgi?id=71448
+
+        @plt postfix for math functions cause crash on Linux 32 (the
+        symbol is defined but it points to NULL) (Requested by
+        zherczeg on #webkit).
+
+        * dfg/DFGOperations.cpp:
+        * jit/JITStubs.cpp:
+        * jit/ThunkGenerators.cpp:
+
+2011-11-02  Filip Pizlo  <fpizlo@apple.com>
+
+        DFG inlining breaks function.arguments[something] if the argument being
+        retrieved was subjected to DFG's unboxing optimizations
+        https://bugs.webkit.org/show_bug.cgi?id=71436
+
+        Reviewed by Oliver Hunt.
+        
+        This makes inlined arguments retrieval use some of the same machinery as
+        OSR to determine where from, and how, to retrieve a value that the DFG
+        might have somehow squirreled away while the old JIT would put it in its
+        obvious location, using an obvious format.
+        
+        To that end, previously DFG-internal notions such as DataFormat,
+        VirtualRegister, and ValueRecovery are now in bytecode/ since they are
+        stored as part of InlineCallFrames.
+
+        * bytecode/CodeOrigin.h:
+        * dfg/DFGAbstractState.cpp:
+        (JSC::DFG::AbstractState::execute):
+        * dfg/DFGByteCodeParser.cpp:
+        (JSC::DFG::ByteCodeParser::handleInlining):
+        (JSC::DFG::ByteCodeParser::InlineStackEntry::InlineStackEntry):
+        * dfg/DFGJITCompiler.cpp:
+        (JSC::DFG::JITCompiler::exitSpeculativeWithOSR):
+        * dfg/DFGJITCompiler32_64.cpp:
+        (JSC::DFG::JITCompiler::exitSpeculativeWithOSR):
+        * dfg/DFGNode.h:
+        * dfg/DFGPropagator.cpp:
+        (JSC::DFG::Propagator::propagateNodePredictions):
+        * dfg/DFGSpeculativeJIT.cpp:
+        (JSC::DFG::SpeculativeJIT::compile):
+        * dfg/DFGSpeculativeJIT64.cpp:
+        (JSC::DFG::SpeculativeJIT::compile):
+        * interpreter/CallFrame.cpp:
+        (JSC::CallFrame::trueCallerFrame):
+        * interpreter/CallFrame.h:
+        (JSC::ExecState::inlineCallFrame):
+        * interpreter/Register.h:
+        (JSC::Register::asInlineCallFrame):
+        (JSC::Register::unboxedInt32):
+        (JSC::Register::unboxedBoolean):
+        (JSC::Register::unboxedCell):
+        * runtime/Arguments.h:
+        (JSC::Arguments::finishCreationAndCopyRegisters):
+
+2011-11-02  Filip Pizlo  <fpizlo@apple.com>
+
+        ValueRecovery should be moved out of the DFG JIT
+        https://bugs.webkit.org/show_bug.cgi?id=71439
+
+        Reviewed by Oliver Hunt.
+
+        * JavaScriptCore.xcodeproj/project.pbxproj:
+        * bytecode/DataFormat.h: Added.
+        (JSC::dataFormatToString):
+        (JSC::needDataFormatConversion):
+        (JSC::isJSFormat):
+        (JSC::isJSInteger):
+        (JSC::isJSDouble):
+        (JSC::isJSCell):
+        (JSC::isJSBoolean):
+        * bytecode/ValueRecovery.h: Added.
+        (JSC::ValueRecovery::ValueRecovery):
+        (JSC::ValueRecovery::alreadyInRegisterFile):
+        (JSC::ValueRecovery::alreadyInRegisterFileAsUnboxedInt32):
+        (JSC::ValueRecovery::alreadyInRegisterFileAsUnboxedCell):
+        (JSC::ValueRecovery::alreadyInRegisterFileAsUnboxedBoolean):
+        (JSC::ValueRecovery::inGPR):
+        (JSC::ValueRecovery::inPair):
+        (JSC::ValueRecovery::inFPR):
+        (JSC::ValueRecovery::displacedInRegisterFile):
+        (JSC::ValueRecovery::constant):
+        (JSC::ValueRecovery::technique):
+        (JSC::ValueRecovery::isInRegisters):
+        (JSC::ValueRecovery::gpr):
+        (JSC::ValueRecovery::tagGPR):
+        (JSC::ValueRecovery::payloadGPR):
+        (JSC::ValueRecovery::fpr):
+        (JSC::ValueRecovery::virtualRegister):
+        (JSC::ValueRecovery::dump):
+        * bytecode/VirtualRegister.h: Added.
+        * dfg/DFGGenerationInfo.h:
+        (JSC::DFG::GenerationInfo::isJSFormat):
+        * dfg/DFGSpeculativeJIT.cpp:
+        (JSC::DFG::ValueSource::dump):
+        * dfg/DFGSpeculativeJIT.h:
+        * dfg/DFGVariableAccessData.h:
+
+2011-11-02  Sam Weinig  <sam@webkit.org>
+
+        Object.getOwnPropertyDescriptor() does not retrieve the getter/setter from a property on the window that has been overridden with a getter/setter
+        https://bugs.webkit.org/show_bug.cgi?id=71333
+
+        Reviewed by Gavin Barraclough.
+
+        Tested by fast/dom/getter-on-window-object2.html
+
+        * runtime/PropertyDescriptor.cpp:
+        (JSC::PropertyDescriptor::setDescriptor):
+        The attributes returned from Structure::get do not include Getter or Setter, so
+        instead check if the value is a GetterSetter like we do elsewhere. If it is, update
+        the descriptor's attributes accordingly.
+
+2011-11-02  Yuqiang Xian  <yuqiang.xian@intel.com>
+
+        FunctionPtr should accept FASTCALL functions on X86
+        https://bugs.webkit.org/show_bug.cgi?id=71434
+
+        Reviewed by Filip Pizlo.
+
+        On X86 we sometimes use FASTCALL convention functions, for example the
+        cti functions, and we may need the pointers to such functions, e.g.,
+        in current DFG register file check and arity check, though long term
+        we may avoid such usage of cti calls in DFG.
+
+        * assembler/MacroAssemblerCodeRef.h:
+        (JSC::FunctionPtr::FunctionPtr):
+
+2011-11-02  Filip Pizlo  <fpizlo@apple.com>
+
+        Inlined uses of the global object should use the right global object
+        https://bugs.webkit.org/show_bug.cgi?id=71427
+
+        Reviewed by Oliver Hunt.
+
+        * dfg/DFGJITCompiler.h:
+        (JSC::DFG::JITCompiler::globalObjectFor):
+        * dfg/DFGSpeculativeJIT64.cpp:
+        (JSC::DFG::SpeculativeJIT::compile):
+
+2011-11-02  Yuqiang Xian  <yuqiang.xian@intel.com>
+
+        Remove some unnecessary loads/stores in DFG JIT 32_64
+        https://bugs.webkit.org/show_bug.cgi?id=71090
+
+        Reviewed by Filip Pizlo.
+
+        In fillSpeculateCell and OSR exit, some unnecessary loads/stores can
+        be eliminated.
+
+        * dfg/DFGJITCompiler32_64.cpp:
+        (JSC::DFG::JITCompiler::exitSpeculativeWithOSR):
+        * dfg/DFGSpeculativeJIT32_64.cpp:
+        (JSC::DFG::SpeculativeJIT::fillSpeculateCell):
+
+2011-11-02  Adam Klein  <adamk@chromium.org>
+
+        Replace usage of StringImpl with String where possible in CharacterData and Text
+        https://bugs.webkit.org/show_bug.cgi?id=71383
+
+        Reviewed by Darin Adler.
+
+        * wtf/text/WTFString.h:
+        (WTF::String::containsOnlyWhitespace): Added new method.
+
+2011-11-02  Mark Hahnenberg  <mhahnenberg@apple.com>
+
+        De-virtualize JSObject::getOwnPropertyNames
+        https://bugs.webkit.org/show_bug.cgi?id=71307
+
+        Reviewed by Darin Adler.
+
+        Added getOwnPropertyNames to the MethodTable, changed all the virtual 
+        implementations of getOwnPropertyNames to static ones, and replaced 
+        all call sites with corresponding lookups in the MethodTable.
+
+        * API/JSCallbackObject.h:
+        * API/JSCallbackObjectFunctions.h:
+        (JSC::::getOwnPropertyNames):
+        * JavaScriptCore.exp:
+        * JavaScriptCore.vcproj/JavaScriptCore/JavaScriptCore.def:
+        * debugger/DebuggerActivation.cpp:
+        (JSC::DebuggerActivation::getOwnPropertyNames):
+        * debugger/DebuggerActivation.h:
+        * runtime/Arguments.cpp:
+        (JSC::Arguments::getOwnPropertyNames):
+        * runtime/Arguments.h:
+        * runtime/ClassInfo.h:
+        * runtime/JSActivation.cpp:
+        (JSC::JSActivation::getOwnPropertyNames):
+        * runtime/JSActivation.h:
+        * runtime/JSArray.cpp:
+        (JSC::JSArray::getOwnPropertyNames):
+        * runtime/JSArray.h:
+        * runtime/JSByteArray.cpp:
+        (JSC::JSByteArray::getOwnPropertyNames):
+        * runtime/JSByteArray.h:
+        * runtime/JSCell.cpp:
+        (JSC::JSCell::getOwnPropertyNames):
+        * runtime/JSCell.h:
+        * runtime/JSFunction.cpp:
+        (JSC::JSFunction::getOwnPropertyNames):
+        * runtime/JSFunction.h:
+        * runtime/JSNotAnObject.cpp:
+        (JSC::JSNotAnObject::getOwnPropertyNames):
+        * runtime/JSNotAnObject.h:
+        * runtime/JSONObject.cpp:
+        (JSC::Stringifier::Holder::appendNextProperty):
+        (JSC::Walker::walk):
+        * runtime/JSObject.cpp:
+        (JSC::JSObject::getPropertyNames):
+        (JSC::JSObject::getOwnPropertyNames):
+        * runtime/JSObject.h:
+        * runtime/JSVariableObject.cpp:
+        (JSC::JSVariableObject::~JSVariableObject):
+        (JSC::JSVariableObject::getOwnPropertyNames):
+        * runtime/JSVariableObject.h:
+        * runtime/ObjectConstructor.cpp:
+        (JSC::objectConstructorGetOwnPropertyNames):
+        (JSC::objectConstructorKeys):
+        (JSC::defineProperties):
+        * runtime/RegExpMatchesArray.h:
+        (JSC::RegExpMatchesArray::getOwnPropertyNames):
+        * runtime/StringObject.cpp:
+        (JSC::StringObject::getOwnPropertyNames):
+        * runtime/StringObject.h:
+        * runtime/Structure.h:
+
+2011-11-02  Dean Jackson  <dino@apple.com>
+
+        Add ENABLE_CSS_SHADERS flag
+        https://bugs.webkit.org/show_bug.cgi?id=71394
+
+        Reviewed by Sam Weinig.
+
+        * Configurations/FeatureDefines.xcconfig:
+
+2011-11-02  Alexey Shabalin  <a.shabalin@gmail.com>
+
+        TEXTREL in libjavascriptcoregtk-1.0.so.0.11.0 on x86 (or i586)
+        https://bugs.webkit.org/show_bug.cgi?id=70610
+
+        Reviewed by Martin Robinson.
+
+        Properly annotate ASM on BSD and Linux x86 systems.
+
+        * dfg/DFGOperations.cpp: Add annotation for X86.
+        * jit/JITStubs.cpp: Ditto.
+        * jit/ThunkGenerators.cpp: Ditto.
+
+2011-11-02  Xianzhu Wang  <wangxianzhu@chromium.org>
+
+        Missing Force8BitConstructor in 8-bit version of StringImpl::reallocate()
+        https://bugs.webkit.org/show_bug.cgi?id=71347
+
+        Reviewed by Geoffrey Garen.
+
+        * wtf/text/StringImpl.cpp:
+        (WTF::StringImpl::reallocate):
+
+2011-11-01  Darin Adler  <darin@apple.com>
+
+        Cut down on malloc/free a bit in the parser arena
+        https://bugs.webkit.org/show_bug.cgi?id=71343
+
+        Reviewed by Oliver Hunt.
+
+        * parser/ParserArena.cpp:
+        (JSC::ParserArena::deallocateObjects): Call the destructors of
+        the deletable objects before freeing the pools. Don't call
+        fastFree on the deletable objects any more.
+
+        * parser/ParserArena.h:
+        (JSC::ParserArena::allocateDeletable): Use allocateFreeable
+        instead of fastMalloc here.
+
+2011-11-01  Sam Weinig  <sam@webkit.org>
+
+        Implement __lookupGetter__/__lookupSetter__ in terms of getPropertyDescriptor
+        https://bugs.webkit.org/show_bug.cgi?id=71336
+
+        Reviewed by Darin Adler.
+
+        * debugger/DebuggerActivation.cpp:
+        * debugger/DebuggerActivation.h:
+        Remove overrides of lookupGetter/lookupSetter, which are no longer needed
+        due to implementing getPropertyDescriptor.
+
+        * runtime/JSObject.cpp:
+        (JSC::JSObject::lookupGetter):
+        (JSC::JSObject::lookupSetter):
+        * runtime/JSObject.h:
+        De-virtualize lookupGetter/lookupSetter, and implement them in terms of
+        getPropertyDescriptor.
+
+2011-11-01  Mark Hahnenberg  <mhahnenberg@apple.com>
+
+        De-virtualize JSObject::defineSetter
+        https://bugs.webkit.org/show_bug.cgi?id=71303
+
+        Reviewed by Darin Adler.
+
+        Added defineSetter to the MethodTable, changed all the virtual 
+        implementations of defineSetter to static ones, and replaced 
+        all call sites with corresponding lookups in the MethodTable.
+
+        * JavaScriptCore.exp:
+        * JavaScriptCore.vcproj/JavaScriptCore/JavaScriptCore.def:
+        * debugger/DebuggerActivation.cpp:
+        (JSC::DebuggerActivation::defineSetter):
+        * debugger/DebuggerActivation.h:
+        * interpreter/Interpreter.cpp:
+        (JSC::Interpreter::privateExecute):
+        * jit/JITStubs.cpp:
+        (JSC::DEFINE_STUB_FUNCTION):
+        * runtime/ClassInfo.h:
+        * runtime/JSCell.cpp:
+        (JSC::JSCell::defineSetter):
+        * runtime/JSCell.h:
+        * runtime/JSGlobalObject.cpp:
+        (JSC::JSGlobalObject::defineSetter):
+        * runtime/JSGlobalObject.h:
+        * runtime/JSObject.cpp:
+        (JSC::JSObject::defineSetter):
+        (JSC::putDescriptor):
+        * runtime/JSObject.h:
+        * runtime/ObjectPrototype.cpp:
+        (JSC::objectProtoFuncDefineSetter):
+
+2011-11-01  Filip Pizlo  <fpizlo@apple.com>
+
+        DFG inlining breaks function.arguments
+        https://bugs.webkit.org/show_bug.cgi?id=71329
+
+        Reviewed by Oliver Hunt.
+        
+        The DFG was forgetting to store code origin mappings for inlined
+        call sites. Some of the fast-path optimizations for
+        CallFrame::trueCallerFrame() were wrong. An assertion in Arguments
+        was wrong.
+        
+        I also took the opportunity to decrease code duplication between
+        DFG64 and DFG32_64, because I didn't feel like writing the same
+        code twice.
+
+        * bytecode/CodeBlock.h:
+        (JSC::ExecState::isInlineCallFrame):
+        * dfg/DFGJITCompiler.cpp:
+        (JSC::DFG::JITCompiler::compileEntry):
+        (JSC::DFG::JITCompiler::compileBody):
+        (JSC::DFG::JITCompiler::link):
+        (JSC::DFG::JITCompiler::compile):
+        (JSC::DFG::JITCompiler::compileFunction):
+        * dfg/DFGJITCompiler32_64.cpp:
+        * dfg/DFGNode.h:
+        * interpreter/CallFrame.cpp:
+        (JSC::CallFrame::trueCallerFrame):
+        * interpreter/CallFrame.h:
+        * runtime/Arguments.h:
+        (JSC::Arguments::getArgumentsData):
+
+2011-11-01  Xianzhu Wang  <wangxianzhu@chromium.org>
+
+        StringImpl::reallocate() should have a 8-bit version
+        https://bugs.webkit.org/show_bug.cgi?id=71210
+
+        Reviewed by Geoffrey Garen.
+
+        * wtf/text/StringImpl.cpp:
+        (WTF::StringImpl::reallocate):
+        * wtf/text/StringImpl.h:
+
 2011-10-31  Filip Pizlo  <fpizlo@apple.com>
 
         The GC should be parallel

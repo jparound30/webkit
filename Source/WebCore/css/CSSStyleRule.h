@@ -40,15 +40,12 @@ public:
     }
     virtual ~CSSStyleRule();
 
-    virtual String selectorText() const;
+    String selectorText() const;
     void setSelectorText(const String&);
 
     CSSMutableStyleDeclaration* style() const { return m_style.get(); }
 
-    virtual String cssText() const;
-
-    // Not part of the CSSOM
-    virtual bool parseString(const String&, bool = false);
+    String cssText() const;
 
     void adoptSelectorVector(Vector<OwnPtr<CSSParserSelector> >& selectors) { m_selectorList.adoptSelectorVector(selectors); }
     void setDeclaration(PassRefPtr<CSSMutableStyleDeclaration>);
@@ -56,7 +53,7 @@ public:
     const CSSSelectorList& selectorList() const { return m_selectorList; }
     CSSMutableStyleDeclaration* declaration() { return m_style.get(); }
 
-    virtual void addSubresourceStyleURLs(ListHashSet<KURL>& urls);
+    void addSubresourceStyleURLs(ListHashSet<KURL>& urls);
 
     int sourceLine() { return m_sourceLine; }
 

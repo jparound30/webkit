@@ -71,7 +71,9 @@
 #include "WebProtectionSpace.h"
 #include "WebSecurityOrigin.h"
 #include "WebURLRequest.h"
+#include <WebCore/DragController.h>
 #include <WebCore/DragData.h>
+#include <WebCore/DragSession.h>
 #include <WebCore/FloatRect.h>
 #include <WebCore/FocusDirection.h>
 #include <WebCore/MIMETypeRegistry.h>
@@ -181,7 +183,6 @@ WebPageProxy::WebPageProxy(PageClient* pageClient, PassRefPtr<WebProcessProxy> p
     , m_hasSpellDocumentTag(false)
     , m_pendingLearnOrIgnoreWordMessageCount(0)
     , m_mainFrameHasCustomRepresentation(false)
-    , m_currentDragOperation(DragOperationNone)
     , m_mainFrameHasHorizontalScrollbar(false)
     , m_mainFrameHasVerticalScrollbar(false)
     , m_mainFrameIsPinnedToLeftSide(false)
@@ -802,6 +803,14 @@ void WebPageProxy::setFixedVisibleContentRect(const IntRect& rect)
 
     process()->send(Messages::WebPage::SetFixedVisibleContentRect(rect), m_pageID);
 }
+
+void WebPageProxy::setViewportSize(const IntSize& size)
+{
+    if (!isValid())
+        return;
+
+    process()->send(Messages::WebPage::SetViewportSize(size), m_pageID);
+}
 #endif
 
 void WebPageProxy::dragEntered(DragData* dragData, const String& dragStorageName)
@@ -842,9 +851,9 @@ void WebPageProxy::performDragControllerAction(DragControllerAction action, Drag
 #endif
 }
 
-void WebPageProxy::didPerformDragControllerAction(uint64_t resultOperation)
+void WebPageProxy::didPerformDragControllerAction(WebCore::DragSession dragSession)
 {
-    m_currentDragOperation = static_cast<DragOperation>(resultOperation);
+    m_currentDragSession = dragSession;
 }
 
 #if PLATFORM(QT) || PLATFORM(GTK)
@@ -960,7 +969,12 @@ void WebPageProxy::handleTouchEvent(const NativeWebTouchEvent& event)
     if (m_needTouchEvents) {
         m_touchEventQueue.append(event);
         process()->responsivenessTimer()->start();
-        process()->send(Messages::WebPage::TouchEvent(event), m_pageID);
+        if (m_shouldSendEventsSynchronously) {
+            bool handled = false;
+            process()->sendSync(Messages::WebPage::TouchEventSyncForTesting(event), Messages::WebPage::TouchEventSyncForTesting::Reply(handled), m_pageID);
+            didReceiveEvent(event.type(), handled);
+        } else
+            process()->send(Messages::WebPage::TouchEvent(event), m_pageID);
     } else {
         if (m_touchEventQueue.isEmpty()) {
             bool isEventHandled = false;
@@ -1433,13 +1447,6 @@ void WebPageProxy::preferencesDidChange()
     process()->send(Messages::WebPage::PreferencesDidChange(pageGroup()->preferences()->store()), m_pageID, m_isPerformingDOMPrintOperation ? CoreIPC::DispatchMessageEvenWhenWaitingForSyncReply : 0);
 }
 
-#if USE(TILED_BACKING_STORE)
-void WebPageProxy::setResizesToContentsUsingLayoutSize(const IntSize& targetLayoutSize)
-{
-    process()->send(Messages::WebPage::SetResizesToContentsUsingLayoutSize(targetLayoutSize), m_pageID);
-}
-#endif
-
 void WebPageProxy::didReceiveMessage(CoreIPC::Connection* connection, CoreIPC::MessageID messageID, CoreIPC::ArgumentDecoder* arguments)
 {
     if (messageID.is<CoreIPC::MessageClassDrawingAreaProxy>()) {
@@ -1832,6 +1839,19 @@ void WebPageProxy::didRunInsecureContentForFrame(uint64_t frameID, CoreIPC::Argu
     MESSAGE_CHECK(frame);
 
     m_loaderClient.didRunInsecureContentForFrame(this, frame, userData.get());
+}
+
+void WebPageProxy::didDetectXSSForFrame(uint64_t frameID, CoreIPC::ArgumentDecoder* arguments)
+{
+    RefPtr<APIObject> userData;
+    WebContextUserMessageDecoder messageDecoder(userData, m_process->context());
+    if (!arguments->decode(messageDecoder))
+        return;
+
+    WebFrameProxy* frame = process()->webFrame(frameID);
+    MESSAGE_CHECK(frame);
+
+    m_loaderClient.didDetectXSSForFrame(this, frame, userData.get());
 }
 
 void WebPageProxy::frameDidBecomeFrameSet(uint64_t frameID, bool value)
@@ -2259,6 +2279,11 @@ void WebPageProxy::findZoomableAreaForPoint(const IntPoint& point)
         return;
 
     process()->send(Messages::WebPage::FindZoomableAreaForPoint(point), m_pageID);
+}
+
+void WebPageProxy::didReceiveMessageFromNavigatorQtObject(const String& contents)
+{
+    m_pageClient->didReceiveMessageFromNavigatorQtObject(contents);
 }
 #endif
 
@@ -2787,6 +2812,7 @@ void WebPageProxy::didReceiveEvent(uint32_t opaqueType, bool handled)
 #if ENABLE(GESTURE_EVENTS)
     case WebEvent::GestureScrollBegin:
     case WebEvent::GestureScrollEnd:
+    case WebEvent::GestureSingleTap:
 #endif
 #if ENABLE(TOUCH_EVENTS)
     case WebEvent::TouchStart:
@@ -2812,6 +2838,7 @@ void WebPageProxy::didReceiveEvent(uint32_t opaqueType, bool handled)
 #if ENABLE(GESTURE_EVENTS)
     case WebEvent::GestureScrollBegin:
     case WebEvent::GestureScrollEnd:
+    case WebEvent::GestureSingleTap:
 #endif
         break;
     case WebEvent::MouseUp:

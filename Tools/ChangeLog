@@ -1,3 +1,506 @@
+2011-11-03  Philippe Normand  <pnormand@igalia.com>
+
+        [GTK] [WK2] ttf-liberation fonts moved to a new location (in Debian)
+        https://bugs.webkit.org/show_bug.cgi?id=71445
+
+        Reviewed by Martin Robinson.
+
+        * DumpRenderTree/gtk/DumpRenderTree.cpp:
+        (initializeFonts): set directoriesDescription only when needed.
+        * WebKitTestRunner/InjectedBundle/gtk/ActivateFontsGtk.cpp:
+        (WTR::inititializeFontConfigSetting): Add the new font path for Debian fonts and
+        refactored the font files loading code to avoid copy/pastes, ease
+        maintenance and future font directories additions.
+
+2011-11-03  Carlos Garcia Campos  <cgarcia@igalia.com>
+
+        [GTK] Remove GtkLauncher2
+        https://bugs.webkit.org/show_bug.cgi?id=71449
+
+        Reviewed by Martin Robinson.
+
+        GtkLauncher2 is the GtkLauncher code compiled with webkit2. This
+        made sense when we wanted to implement the exactly same wk1 API
+        for wk2. Now the code would require an ifdef for most the api, so
+        it's better to remove GtkLauncher2 and port MiniBrowser to the new
+        GTK+ API.
+
+        * GNUmakefile.am:
+        * GtkLauncher/main.c:
+        (notifyProgressCb):
+        (closeWebViewCb):
+        (createBrowser):
+        (addWebSettingsGroupToContext):
+        (main):
+
+2011-11-02  Philippe Normand  <pnormand@igalia.com>
+
+        [GTK] [DRT] ttf-liberation fonts moved to a new location (in Debian)
+        https://bugs.webkit.org/show_bug.cgi?id=71359
+
+        Reviewed by Martin Robinson.
+
+        * DumpRenderTree/gtk/DumpRenderTree.cpp:
+        (initializeFonts): Add the new font path for Debian fonts and
+        refactored the font files loading code to avoid copy/pastes, ease
+        maintenance and future font directories additions.
+
+2011-11-02  Eric Seidel  <eric@webkit.org>
+
+        Move Mocks into _mock files near their implementations
+        https://bugs.webkit.org/show_bug.cgi?id=71425
+
+        Reviewed by Adam Barth.
+
+        This entire change is splitting mocktool.py into separate _mock.py files
+        and placing them next to their real implementations.
+
+        I also deleted MockPortFactory (since it was wrong) and was just hiding
+        the fact that the "skipped-ports" command was broken (and has been for a long time).
+        So I made MockHost use a real PortFactory (passed a MockHost) and changed
+        the skipped-ports implementation to use modern PortFactory methods.
+
+        * Scripts/webkitpy/common/checkout/baselineoptimizer_unittest.py:
+        * Scripts/webkitpy/common/checkout/checkout_mock.py: Added.
+        * Scripts/webkitpy/common/checkout/checkout_unittest.py:
+        * Scripts/webkitpy/common/checkout/deps_mock.py: Copied from Tools/Scripts/webkitpy/layout_tests/port/__init__.py.
+        * Scripts/webkitpy/common/checkout/scm/scm_mock.py: Added.
+        * Scripts/webkitpy/common/checkout/scm/scm_unittest.py:
+        * Scripts/webkitpy/common/config/ports_mock.py: Copied from Tools/Scripts/webkitpy/layout_tests/port/gtk_unittest.py.
+        * Scripts/webkitpy/common/host.py:
+        * Scripts/webkitpy/common/host_mock.py: Added.
+        * Scripts/webkitpy/common/net/bugzilla/bugzilla_mock.py: Added.
+        * Scripts/webkitpy/common/net/bugzilla/bugzilla_unittest.py:
+        * Scripts/webkitpy/common/net/buildbot/buildbot_mock.py: Added.
+        * Scripts/webkitpy/common/net/credentials_unittest.py:
+        * Scripts/webkitpy/common/net/failuremap_unittest.py:
+        * Scripts/webkitpy/common/net/irc/irc_mock.py: Copied from Tools/Scripts/webkitpy/layout_tests/port/__init__.py.
+        * Scripts/webkitpy/common/net/statusserver_mock.py: Copied from Tools/Scripts/webkitpy/layout_tests/port/gtk_unittest.py.
+        * Scripts/webkitpy/common/net/statusserver_unittest.py:
+        * Scripts/webkitpy/common/net/web_mock.py: Copied from Tools/Scripts/webkitpy/layout_tests/port/gtk_unittest.py.
+        * Scripts/webkitpy/common/system/executive.py:
+        * Scripts/webkitpy/common/system/executive_mock.py:
+        * Scripts/webkitpy/common/system/platforminfo_mock.py: Copied from Tools/Scripts/webkitpy/layout_tests/port/__init__.py.
+        * Scripts/webkitpy/common/system/user_mock.py: Copied from Tools/Scripts/webkitpy/layout_tests/port/gtk_unittest.py.
+        * Scripts/webkitpy/common/system/workspace_mock.py: Copied from Tools/Scripts/webkitpy/layout_tests/port/__init__.py.
+        * Scripts/webkitpy/common/system/workspace_unittest.py:
+        * Scripts/webkitpy/common/watchlist/watchlist_mock.py: Copied from Tools/Scripts/webkitpy/layout_tests/port/__init__.py.
+        * Scripts/webkitpy/layout_tests/controllers/manager_unittest.py:
+        * Scripts/webkitpy/layout_tests/controllers/test_expectations_editor_unittest.py:
+        * Scripts/webkitpy/layout_tests/port/__init__.py:
+        * Scripts/webkitpy/layout_tests/port/base_unittest.py:
+        * Scripts/webkitpy/layout_tests/port/efl_unittest.py:
+        * Scripts/webkitpy/layout_tests/port/factory.py:
+        * Scripts/webkitpy/layout_tests/port/factory_unittest.py:
+        * Scripts/webkitpy/layout_tests/port/gtk_unittest.py:
+        * Scripts/webkitpy/layout_tests/port/http_lock_unittest.py:
+        * Scripts/webkitpy/layout_tests/port/leakdetector_unittest.py:
+        * Scripts/webkitpy/layout_tests/port/mac_unittest.py:
+        * Scripts/webkitpy/layout_tests/port/port_testcase.py:
+        * Scripts/webkitpy/layout_tests/port/qt_unittest.py:
+        * Scripts/webkitpy/layout_tests/port/webkit_unittest.py:
+        * Scripts/webkitpy/layout_tests/port/win_unittest.py:
+        * Scripts/webkitpy/test/main.py:
+        * Scripts/webkitpy/tool/bot/botinfo_unittest.py:
+        * Scripts/webkitpy/tool/bot/flakytestreporter_unittest.py:
+        * Scripts/webkitpy/tool/bot/irc_command_unittest.py:
+        * Scripts/webkitpy/tool/commands/queries_unittest.py:
+        * Scripts/webkitpy/tool/commands/rebaseline_unittest.py:
+        * Scripts/webkitpy/tool/mocktool.py:
+        * Scripts/webkitpy/tool/servers/gardeningserver_unittest.py:
+
+2011-11-02  Dan Bernstein  <mitz@apple.com>
+
+        Fixed the build and removed another copy to ColorBits.ttf.
+
+        * DumpRenderTree/DumpRenderTree.xcodeproj/project.pbxproj:
+        * WebKitTestRunner/WebKitTestRunner.xcodeproj/project.pbxproj:
+        * WebKitTestRunner/fonts/ColorBits.ttf: Removed.
+
+2011-11-02  Dan Bernstein  <mitz@apple.com>
+
+        REGRESSION (r98759-r98773): platform/mac/fonts/color-bitmap.html failing on Lion Intel Debug (Tests)
+        https://bugs.webkit.org/show_bug.cgi?id=71424
+
+        Reviewed by Sam Weinig.
+
+        Removed the ColorBits font and the code to register it in the process
+        running the tests. The font was only used by the aforementioned test,
+        which is now being removed.
+
+        * DumpRenderTree/fonts/ColorBits-A.png: Removed.
+        * DumpRenderTree/fonts/ColorBits.ttf: Removed.
+        * DumpRenderTree/mac/DumpRenderTree.mm:
+        (allowedFontFamilySet):
+        (activateTestingFonts):
+        * WebKitTestRunner/InjectedBundle/gtk/ActivateFontsGtk.cpp:
+        (WTR::inititializeFontConfigSetting):
+        * WebKitTestRunner/InjectedBundle/mac/ActivateFonts.mm:
+        (WTR::allowedFontFamilySet):
+        (WTR::activateFonts):
+
+2011-11-02  Dan Bernstein  <mitz@apple.com>
+
+        Fix an intermittent hang in RenderedImageFromDOMRange.
+
+        Reviewed by Anders Carlsson.
+
+        * TestWebKitAPI/mac/PlatformUtilitiesMac.mm:
+        (TestWebKitAPI::Util::run): Made the call to -runMode:beforeDate: return
+        immediately if there are no sources by passing a date in the distant past.
+
+2011-11-02  Adam Roben  <aroben@apple.com>
+
+        Add git-add-reviewer
+
+        I've been using this script for a while to add reviewers to git commits in my local
+        repository before pushing them to the Subversion repository. Basic usage is:
+
+        git-add-reviewer HEAD^ "Joe Schmoe"
+        or
+        git-add-reviewer -i trunk
+
+        Fixes <http://webkit.org/b/71419> Would like an easy way to add reviewer names to existing
+        git commits
+
+        Reviewed by Sam Weinig.
+
+        * Scripts/git-add-reviewer: Added.
+        (top level): Parse options, check that the working tree is clean, then run in either
+        interactive or non-interactive mode as appropriate.
+        (interactive): Write out a temp file that contains each commit with "NOBODY" next to it and
+        open it in the user's editor. The user can replace "NOBODY" with reviewer names. When the
+        editor exits, we check out the commit just before the earliest one we're modifying. Then
+        for each commit, we check it out, update the reviewer, and amend the commit to contain the
+        new reviewer. Finally, we update the branch that was originally checked out to point to the
+        last amended commit.
+        (nonInteractive): Check out the commit to modify, write the current commit message to the
+        MERGE_MSG file so addReviewer will update it, add the reviewer to the ChangeLog(s), amend
+        the commit, and rebase the original branch on top of the amended commit. (usage): Print out
+        a usage message and exit.
+        (requireCleanWorkTree): Do the same steps git-rebase does to ensure that the working tree
+        and index are clean.
+        (fail): Print out the specified error message, if any, and return false. This function is
+        used as a return value in various error cases throughout the script.
+        (cherryPick): Cherry-pick the specified commit and return 1 if we succeeded.
+        (addReviewer): Add the specified reviewer to all the ChangeLogs modified in this commit, and
+        to .git/MERGE_MSG, which will be used as the commit message for the next commit.
+        (commit): Call git-commit and use .git/MERGE_MSG as the commit message.
+
+        (addReviewerToChangeLog):
+        (addReviewerToCommitMessage):
+        These just call through to addReviewerToFile.
+
+        (addReviewerToFile): Read in the file, replacing any "NOBODY" text with the reviewer name(s)
+        and replacing "Reviewed" with "Rubber-stamped" if specified. Write the resulting text to a
+        temp file, then move the temp file over the original file and stage it for the next commit.
+        (head): Returns the name of the currently-checked-out branch.
+        (isAncestor): Returns true if the first commit is an ancestor of the second.
+        (toCommit): Converts a commitish to a commit ID using git-rev-parse.
+        (changeLogsForCommit): Returns a list of all the ChangeLogs modified in the given commit.
+        (resetToCommit): Checks out the given commit, throwing away any local changes.
+        (writeCommitMessageToFile): Gets the commit message for the current commit and writes it to
+        the specified file.
+        (rebaseOntoHead): Rebases the specified branch onto HEAD.
+        (checkout): Checks out the given commit.
+        (getConfigValue): Reads the specified config variable from git-config.
+
+2011-11-02  Dean Jackson  <dino@apple.com>
+
+        Add ENABLE_CSS_SHADERS flag
+        https://bugs.webkit.org/show_bug.cgi?id=71394
+
+        Reviewed by Sam Weinig.
+
+        * Scripts/build-webkit:
+
+2011-10-31  Eric Seidel  <eric@webkit.org>
+
+        BaselineOptimizer tests should use mocks instead of real Executive/FileSystem objects
+        https://bugs.webkit.org/show_bug.cgi?id=71237
+
+        Reviewed by Adam Barth.
+
+        Calling the static version of factory.get() with proper mocking
+        requires passsing an explict filesystem, executive, etc.
+        So instead, we use a PortFactory instance and pass it a Host pointer.
+        I had to add a MockHost since we'd not needed a non-host tool before now.
+
+        * Scripts/webkitpy/common/checkout/baselineoptimizer.py:
+        * Scripts/webkitpy/common/checkout/baselineoptimizer_unittest.py:
+        * Scripts/webkitpy/tool/commands/rebaseline.py:
+        * Scripts/webkitpy/tool/mocktool.py:
+
+2011-11-02  Anders Carlsson  <andersca@apple.com>
+
+        Update for the WebKit2 API fixage.
+
+        * MiniBrowser/mac/BrowserWindowController.m:
+        (-[BrowserWindowController awakeFromNib]):
+        * WebKitTestRunner/TestController.cpp:
+        (WTR::TestController::initialize):
+
+2011-11-02  Anders Carlsson  <andersca@apple.com>
+
+        Fix build.
+
+        Add new functions to the page loader client.
+
+        * MiniBrowser/mac/BrowserWindowController.m:
+        (-[BrowserWindowController awakeFromNib]):
+        * WebKitTestRunner/TestController.cpp:
+        (WTR::TestController::initialize):
+
+2011-11-02  Dan Bernstein  <mitz@apple.com>
+
+        <rdar://problem/10336700> Add API to get rendered text image without having to select it
+        https://bugs.webkit.org/show_bug.cgi?id=71407
+
+        Reviewed by Simon Fraser.
+
+        * TestWebKitAPI/TestWebKitAPI.xcodeproj/project.pbxproj:
+        * TestWebKitAPI/Tests/mac/RenderedImageFromDOMRange.mm: Added.
+        (-[RenderedImageFromDOMRangeFrameLoadDelegate webView:didFinishLoadForFrame:]):
+        (TestWebKitAPI::TEST):
+
+2011-11-02  Benjamin Poulain  <benjamin@webkit.org>
+
+        Make the main frame's base path more explicit in _drt_descriptionSuitableForTestResult
+        https://bugs.webkit.org/show_bug.cgi?id=71351
+
+        Reviewed by Darin Adler.
+
+        Add the delimiter "/" at the end of the path instead of adding +1 when using
+        the path.
+
+        * DumpRenderTree/mac/ResourceLoadDelegate.mm:
+        (-[NSURL _drt_descriptionSuitableForTestResult]):
+
+2011-11-02  Tom Sepez  <tsepez@chromium.org>
+
+        XSSAuditor is silent
+        https://bugs.webkit.org/show_bug.cgi?id=70973
+
+        Reviewed by Adam Barth.
+
+        * DumpRenderTree/chromium/WebViewHost.cpp:
+        (WebViewHost::didDetectXSS):
+        * DumpRenderTree/chromium/WebViewHost.h:
+        * DumpRenderTree/mac/FrameLoadDelegate.mm:
+        (-[FrameLoadDelegate webView:didDetectXSS:]):
+        * MiniBrowser/mac/BrowserWindowController.m:
+        (didDetectXSSForFrame):
+        (-[BrowserWindowController awakeFromNib]):
+        * WebKitTestRunner/InjectedBundle/InjectedBundlePage.cpp:
+        (WTR::InjectedBundlePage::InjectedBundlePage):
+        (WTR::InjectedBundlePage::didDetectXSSForFrame):
+        * WebKitTestRunner/InjectedBundle/InjectedBundlePage.h:
+
+2011-11-02  Simon Hausmann  <simon.hausmann@nokia.com>
+
+        [Qt] REGRESSION: 5 editing tests fail
+        https://bugs.webkit.org/show_bug.cgi?id=71117
+
+        Reviewed by Andreas Kling.
+
+        Make sure that the view is properly focused, in order to get the
+        didBeginEditing DRT calls.
+
+        This requires activating the window (the call will result in a FocusIn
+        event to the window as well as setting QGuiApplication::focusWindow())
+        as well as enabling the focus on the view item. The signature of
+        setFocus has changed to take a boolean.
+
+        * WebKitTestRunner/qt/PlatformWebViewQt.cpp:
+        (WTR::WrapperWindow::handleStatusChanged):
+
+2011-11-02  Matt Falkenhagen  <falken@chromium.org>
+
+        [chromium] Add per-script font preferences support in overridePreference
+        https://bugs.webkit.org/show_bug.cgi?id=71110
+
+        This allows a layout test to do something like:
+
+        // Set standard font for Arabic to Ahem.
+        overridePreference("WebKitStandardFontMap", [ "Arab", "Ahem" ]);
+
+        This should make writing a layout test for per-script fonts easier.
+
+        This change only affects the Chromium DumpRenderTree, but the other
+        platforms should probably also have a similar change eventually.
+
+        Reviewed by Tony Chang.
+
+        * DumpRenderTree/chromium/LayoutTestController.cpp: add per-script
+        font preferences to overridePreference
+        (LayoutTestController::cppVariantToWebStringArray):
+        (setFontMap):
+        (LayoutTestController::overridePreference):
+        * DumpRenderTree/chromium/LayoutTestController.h:
+        * DumpRenderTree/chromium/WebPreferences.cpp:
+        (setStandardFontFamilyWrapper):
+        (setFixedFontFamilyWrapper):
+        (setSerifFontFamilyWrapper):
+        (setSansSerifFontFamilyWrapper):
+        (setCursiveFontFamilyWrapper):
+        (setFantasyFontFamilyWrapper):
+        (applyFontMap):
+        (WebPreferences::applyTo):
+        * DumpRenderTree/chromium/WebPreferences.h: add per-script font
+        preference members
+        (WebPreferences::UScriptCodeHashTraits::emptyValue):
+        (WebPreferences::UScriptCodeHashTraits::constructDeletedValue):
+        (WebPreferences::UScriptCodeHashTraits::isDeletedValue):
+
+2011-11-02  Elliot Poger  <epoger@google.com>
+
+        until use_skia=1 by default on mac, default port should be chromium-cg-mac
+        https://bugs.webkit.org/show_bug.cgi?id=71312
+
+        Reviewed by Adam Barth.
+
+        * Scripts/webkitpy/layout_tests/port/chromium_gpu.py:
+        * Scripts/webkitpy/layout_tests/port/chromium_mac.py:
+        * Scripts/webkitpy/layout_tests/port/chromium_mac_unittest.py:
+
+2011-11-02  Stephen Chenney  <schenney@chromium.org>
+
+        printing layout test failures after r98634
+        https://bugs.webkit.org/show_bug.cgi?id=71080
+
+        Reviewed by Kent Tamura
+
+        * DumpRenderTree/chromium/WebViewHost.cpp:
+        (WebViewHost::paintPagesWithBoundaries): Added transforms invert the CG Bitmap so the coord system
+        matches that for Skia.
+
+2011-11-01  Sam Weinig  <sam@webkit.org>
+
+        Can't complete ChangeLog when using resolve-Changelogs and webkit-tools-completion.sh
+        https://bugs.webkit.org/show_bug.cgi?id=71346
+
+        Reviewed by Dan Bernstein.
+
+        * Scripts/webkit-tools-completion.sh:
+        Add "-o default" which allows for completing files in addition to the word list.
+
+2011-11-02  Simon Hausmann  <simon.hausmann@nokia.com>
+
+        [Qt][WK2] Add support for touch event testing to WebKitTestRunner
+        https://bugs.webkit.org/show_bug.cgi?id=71310
+
+        Reviewed by Kenneth Rohde Christiansen.
+
+        * WebKitTestRunner/DerivedSources.pro: Build system foo to ensure the ENABLE_TOUCH_EVENTS
+        define works in EventSendingController.idl
+        * WebKitTestRunner/EventSenderProxy.h: Add declarations for Qt implementations of touch
+        handlers.
+        * WebKitTestRunner/InjectedBundle/Bindings/EventSendingController.idl: Add touch functions
+        required by tests.
+        * WebKitTestRunner/InjectedBundle/EventSendingController.cpp: Forward touch messages to the
+        ui process.
+        (WTR::EventSendingController::addTouchPoint):
+        (WTR::EventSendingController::updateTouchPoint):
+        (WTR::EventSendingController::setTouchModifier):
+        (WTR::EventSendingController::touchStart):
+        (WTR::EventSendingController::touchMove):
+        (WTR::EventSendingController::touchEnd):
+        (WTR::EventSendingController::clearTouchPoints):
+        (WTR::EventSendingController::releaseTouchPoint):
+        * WebKitTestRunner/InjectedBundle/EventSendingController.h:
+        * WebKitTestRunner/InjectedBundle/qt/InjectedBundle.pro: Include features.pri for feature
+        defines.
+        * WebKitTestRunner/TestController.cpp:
+        (WTR::TestController::didReceiveSynchronousMessageFromInjectedBundle): Forward incoming
+        touch messages to the EventSenderProxy.
+        * WebKitTestRunner/qt/EventSenderProxyQt.cpp: Implement touch test harness functions.
+        (WTR::EventSenderProxy::EventSenderProxy):
+        (WTR::EventSenderProxy::addTouchPoint):
+        (WTR::EventSenderProxy::updateTouchPoint):
+        (WTR::EventSenderProxy::setTouchModifier):
+        (WTR::EventSenderProxy::touchStart):
+        (WTR::EventSenderProxy::touchMove):
+        (WTR::EventSenderProxy::touchEnd):
+        (WTR::EventSenderProxy::clearTouchPoints):
+        (WTR::EventSenderProxy::releaseTouchPoint):
+        (WTR::EventSenderProxy::sendTouchEvent):
+        * WebKitTestRunner/qt/WebKitTestRunner.pro: Include features.pri for feature defines.
+
+2011-11-01  Sam Weinig  <sam@webkit.org>
+
+        resolve-ChangeLogs --help should be faster.
+
+        Reviewed by Adam Roben.
+
+        * Scripts/resolve-ChangeLogs:
+        (usageAndExit):
+        Add a call to usageAndExit() before doing work to find unmerged changelogs
+        if --help or something illegal is provided on the command line.
+
+2011-11-01  Benjamin Poulain  <bpoulain@apple.com>
+
+        [Mac] _drt_descriptionSuitableForTestResult generate an exception for absolute paths above the main frame
+        https://bugs.webkit.org/show_bug.cgi?id=71342
+
+        Reviewed by Darin Adler.
+
+        [NSURL _drt_descriptionSuitableForTestResult] was generating a NSRangeException due to the call to
+        [NSString substringFromIndex:] with an index out of the string range.
+
+        The source of this path is the test-loading-archive-subresource-null-mimetype.html which load a subresource
+        from the root of the disk.
+        The problem was hidden because the exception are catched when calling the delegate.
+
+        This patch changes _drt_descriptionSuitableForTestResult to return absolute string if the resource is not
+        in a subdirectory of the main frame.
+
+        * DumpRenderTree/mac/ResourceLoadDelegate.mm:
+        (-[NSURL _drt_descriptionSuitableForTestResult]):
+
+2011-11-01  Alok Priyadarshi  <alokp@chromium.org>
+
+        [chromium] --enable-hardware-gpu flag is not recognized by run-webkit-tests
+        https://bugs.webkit.org/show_bug.cgi?id=71318
+
+        Reviewed by James Robinson.
+        
+        Fixed a typo for --enable-hardware-gpu flag.
+
+        * Scripts/webkitpy/layout_tests/port/chromium.py:
+
+2011-11-01  Elliot Poger  <epoger@google.com>
+
+        chromium-gpu port should default to chromium-gpu-mac, not chromium-gpu-cg-mac
+        https://bugs.webkit.org/show_bug.cgi?id=71286
+
+        Reviewed by Stephen White.
+
+        * Scripts/webkitpy/layout_tests/port/chromium_gpu.py:
+
+2011-11-01  Simon Hausmann  <simon.hausmann@nokia.com>
+
+        [Qt][WK2] Fix build of WebKitTestRunner with ELF symbol visibility
+        https://bugs.webkit.org/show_bug.cgi?id=71299
+
+        Reviewed by Andreas Kling.
+
+        * WebKitTestRunner/InjectedBundle/InjectedBundlePage.cpp: Use the properly exported symbol for the Qt
+        build to enable WebCoreTestSupport::injectInternalsObject.
+        (WTR::InjectedBundlePage::didClearWindowForFrame):
+        * WebKitTestRunner/InjectedBundle/qt/InjectedBundle.pro: Fix include path to DRTSupportQt
+
+2011-11-01  Jocelyn Turcotte  <jocelyn.turcotte@nokia.com>
+
+        [Qt] Merge common desktop and touch view APIs under a base class.
+        https://bugs.webkit.org/show_bug.cgi?id=71280
+
+        Reviewed by Andreas Kling.
+
+        Remove unneded forwarding logic for TouchWebView since those properties are
+        now in the view just as the desktop web view.
+
+        * MiniBrowser/qt/qml/TouchView.qml:
+
 2011-11-01  Jocelyn Turcotte  <jocelyn.turcotte@nokia.com>
 
         check-webkit-style: Allow names starting with "_q_".

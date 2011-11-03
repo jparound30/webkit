@@ -1699,6 +1699,10 @@ bool CSSParser::parseValue(int propId, bool important)
         if (value->id == CSSValueVisible || value->id == CSSValueHidden)
             validPrimitive = true;
         break;
+    case CSSPropertyWebkitPrintColorAdjust:
+        if (value->id == CSSValueExact || value->id == CSSValueEconomy)
+            validPrimitive = true;
+        break;
     case CSSPropertyWebkitPerspective:
         if (id == CSSValueNone)
             validPrimitive = true;
@@ -5093,7 +5097,7 @@ bool CSSParser::parseFlex(int propId, bool important)
 #if ENABLE(CSS3_FLEXBOX)
     CSSParserValue* value = m_valueList->current();
     CSSParserValueList* args = value->function->args.get();
-    if (!equalIgnoringCase(value->function->name, "-webkit-flex(") || !args || args->size() > 3 || m_valueList->next())
+    if (!equalIgnoringCase(value->function->name, "-webkit-flex(") || !args || !args->size() || args->size() > 3 || m_valueList->next())
         return false;
 
     static const double unsetValue = -1;

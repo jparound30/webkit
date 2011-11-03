@@ -363,15 +363,19 @@ LayoutUnit RenderTableSection::calcRowLogicalHeight()
                 cell->layoutIfNeeded();
             }
 
-            LayoutUnit adjustedPaddingBefore = cell->paddingBefore() - cell->intrinsicPaddingBefore();
-            LayoutUnit adjustedPaddingAfter = cell->paddingAfter() - cell->intrinsicPaddingAfter();
             LayoutUnit adjustedLogicalHeight = cell->logicalHeight() - (cell->intrinsicPaddingBefore() + cell->intrinsicPaddingAfter());
 
-            // Explicit heights use the border box in quirks mode.  In strict mode do the right
-            // thing and actually add in the border and padding.
-            ch = cell->style()->logicalHeight().calcValue(0) + 
-                (document()->inQuirksMode() ? 0 : (adjustedPaddingBefore + adjustedPaddingAfter +
-                                                   cell->borderBefore() + cell->borderAfter()));
+            ch = cell->style()->logicalHeight().calcValue(0);
+            if (document()->inQuirksMode() || cell->style()->boxSizing() == BORDER_BOX) {
+                // Explicit heights use the border box in quirks mode.
+                // Don't adjust height.
+            } else {
+                // In strict mode, box-sizing: content-box do the right
+                // thing and actually add in the border and padding.
+                LayoutUnit adjustedPaddingBefore = cell->paddingBefore() - cell->intrinsicPaddingBefore();
+                LayoutUnit adjustedPaddingAfter = cell->paddingAfter() - cell->intrinsicPaddingAfter();
+                ch += adjustedPaddingBefore + adjustedPaddingAfter + cell->borderBefore() + cell->borderAfter();
+            }
             ch = max(ch, adjustedLogicalHeight);
 
             pos = m_rowPos[indx] + ch + (m_grid[r].rowRenderer ? spacing : 0);
@@ -1122,6 +1126,9 @@ void RenderTableSection::recalcCells()
     m_cRow = 0;
     fillRowsWithDefaultStartingAtPosition(0);
 
+    // The grid size is at least as big as the number of rows in the markup but can grow bigger
+    // if we have a cell protruding because it uses a rowspan spannig out of the table.
+    unsigned gridSize = 0;
     for (RenderObject* row = firstChild(); row; row = row->nextSibling()) {
         if (row->isTableRow()) {
             unsigned insertionRow = m_cRow;
@@ -1135,13 +1142,18 @@ void RenderTableSection::recalcCells()
             setRowLogicalHeightToRowStyleLogicalHeightIfNotRelative(m_grid[insertionRow]);
 
             for (RenderObject* cell = row->firstChild(); cell; cell = cell->nextSibling()) {
-                if (cell->isTableCell())
-                    addCell(toRenderTableCell(cell), tableRow);
+                if (!cell->isTableCell())
+                    continue;
+
+                RenderTableCell* tableCell = toRenderTableCell(cell);
+                gridSize = max(gridSize, insertionRow + tableCell->rowSpan());
+                addCell(tableCell, tableRow);
             }
         }
     }
 
-    m_grid.shrinkToFit();
+    gridSize = max(gridSize, m_cRow);
+    m_grid.shrink(gridSize);
     m_needsCellRecalc = false;
     setNeedsLayout(true);
 }

@@ -91,10 +91,8 @@ public:
 
     CSSRule* parentRule() const { return m_parentIsRule ? m_parentRule : 0; }
 
-    virtual String cssText() const = 0;
+    String cssText() const;
     void setCssText(const String&, ExceptionCode&);
-
-    virtual void addSubresourceStyleURLs(ListHashSet<KURL>&) { }
 
     KURL baseURL() const
     {

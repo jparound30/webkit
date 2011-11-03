@@ -279,8 +279,8 @@ public:
 
     LayoutSize scrolledContentOffset() const { return scrollOffset() + m_scrollOverflow; }
 
-    LayoutUnit scrollXOffset() const { return m_scrollOffset.width() + m_scrollOrigin.x(); }
-    LayoutUnit scrollYOffset() const { return m_scrollOffset.height() + m_scrollOrigin.y(); }
+    LayoutUnit scrollXOffset() const { return m_scrollOffset.width() + scrollOrigin().x(); }
+    LayoutUnit scrollYOffset() const { return m_scrollOffset.height() + scrollOrigin().y(); }
     LayoutSize scrollOffset() const { return LayoutSize(scrollXOffset(), scrollYOffset()); }
 
     void scrollToOffset(LayoutUnit, LayoutUnit, ScrollOffsetClamping = ScrollOffsetUnclamped);
@@ -386,8 +386,9 @@ public:
     Vector<RenderLayer*>* normalFlowList() const { return m_normalFlowList; }
 
     // FIXME: We should ASSERT(!m_visibleContentStatusDirty) here, but see https://bugs.webkit.org/show_bug.cgi?id=71044
+    // ditto for hasVisibleDescendant(), see https://bugs.webkit.org/show_bug.cgi?id=71277
     bool hasVisibleContent() const { return m_hasVisibleContent; }
-    bool hasVisibleDescendant() const { ASSERT(!m_visibleDescendantStatusDirty); return m_hasVisibleDescendant; }
+    bool hasVisibleDescendant() const { return m_hasVisibleDescendant; }
     void setHasVisibleContent(bool);
     void dirtyVisibleContentStatus();
 

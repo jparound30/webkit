@@ -657,9 +657,6 @@ WebInspector.StylesSidebarPane.prototype = {
     _createNewRule: function(event)
     {
         event.stopPropagation();
-        if (WebInspector.isEditingAnyField())
-            return;
-
         this.expanded = true;
         this.addBlankSection().startEditingSelector();
     },
@@ -1025,7 +1022,7 @@ WebInspector.StylePropertiesSection.prototype = {
                 shorthandNames[property.shorthand] = true;
         }
 
-        // Collect all shorthand names.
+        // Create property tree elements.
         for (var i = 0; i < this.uniqueProperties.length; ++i) {
             var property = this.uniqueProperties[i];
             var disabled = property.disabled;
@@ -1042,6 +1039,10 @@ WebInspector.StylePropertiesSection.prototype = {
                 if (!property)
                     property = new WebInspector.CSSProperty(style, style.allProperties.length, shorthand, style.getShorthandValue(shorthand), style.getShorthandPriority(shorthand), "style", true, true, "", undefined);
             }
+
+            // BUG71275: Never show purely style-based properties in editable rules.
+            if (!shorthand && this.editable && property.styleBased)
+                continue;
 
             var isShorthand = !!(property.isLive && (shorthand || shorthandNames[property.name]));
             var inherited = this.isPropertyInherited(property.name);
@@ -1938,7 +1939,11 @@ WebInspector.StylePropertyTreeElement.prototype = {
             }
 
             event.stopPropagation();
+            return;
         }
+
+        if (!isEditingName)
+            this._applyFreeFlowStyleTextEdit(false);
     },
 
     _applyFreeFlowStyleTextEdit: function(now)
@@ -2231,13 +2236,13 @@ WebInspector.StylesSidebarPane.CSSPropertyPrompt.prototype = {
 
         var reverse = event.keyIdentifier === "Up";
         if (this.autoCompleteElement)
-            this.complete(false, reverse); // Accept the current suggestion, if any.
+            this.complete(false, true, reverse); // Accept the current suggestion, if any.
         else {
             // Select the word suffix to affect it when computing the subsequent suggestion.
             this._selectCurrentWordSuffix();
         }
 
-        this.complete(false, reverse); // Actually increment/decrement the suggestion.
+        this.complete(false, true, reverse); // Actually increment/decrement the suggestion.
         return true;
     },
 
@@ -2324,24 +2329,14 @@ WebInspector.StylesSidebarPane.CSSPropertyPrompt.prototype = {
         selection.addRange(wordSuffixRange);
     },
 
-    _buildPropertyCompletions: function(wordRange, bestMatchOnly, completionsReadyCallback)
+    _buildPropertyCompletions: function(wordRange, force, completionsReadyCallback)
     {
         var prefix = wordRange.toString().toLowerCase();
-        if (!prefix && bestMatchOnly)
+        if (!prefix && !force)
             return;
 
-        var results;
-        if (bestMatchOnly) {
-            results = [];
-            var firstMatch = this._cssCompletions.firstStartsWith(prefix);
-            if (firstMatch)
-                results.push(firstMatch);
-            return completionsReadyCallback(results);
-        }
-
-        results = this._cssCompletions.startsWith(prefix);
-        if (results)
-            completionsReadyCallback(results);
+        var results = this._cssCompletions.startsWith(prefix);
+        completionsReadyCallback(results);
     }
 }
 

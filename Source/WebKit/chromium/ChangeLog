@@ -1,3 +1,185 @@
+2011-11-02  Pavel Feldman  <pfeldman@google.com>
+
+        Web Inspector [chromium]: fix debug front-end zip generation.
+        https://bugs.webkit.org/show_bug.cgi?id=71376
+
+        Reviewed by Yury Semikhatsky.
+
+        * WebKit.gyp:
+        * scripts/generate_devtools_zip.py:
+
+2011-11-02  Jon Lee  <jonlee@apple.com>
+
+        Expand DragController to provide more information about the dragging session
+        https://bugs.webkit.org/show_bug.cgi?id=71324
+        <rdar://problem/10379175>
+
+        Reviewed by Darin Adler.
+
+        * src/WebViewImpl.cpp:
+        (WebKit::WebViewImpl::dragTargetDragEnterOrOver): The drag operation is contained
+        within the new DragSession struct. Minor refactor.
+
+2011-10-31  Nat Duca  <nduca@chromium.org>
+
+        [chromium] Slow down commit and draw rate based on visibility and draw completion
+        https://bugs.webkit.org/show_bug.cgi?id=71267
+
+        Reviewed by James Robinson.
+
+        * tests/CCSchedulerStateMachineTest.cpp:
+        (WebCore::TEST):
+        * tests/CCSchedulerTest.cpp:
+        (WebKitTests::FakeCCSchedulerClient::reset):
+        (WebKitTests::FakeCCSchedulerClient::setVisible):
+        (WebKitTests::FakeCCSchedulerClient::visible):
+        (WebKitTests::TEST):
+
+2011-11-02  Tom Sepez  <tsepez@chromium.org>
+
+        XSSAuditor is silent
+        https://bugs.webkit.org/show_bug.cgi?id=70973
+
+        Reviewed by Adam Barth.
+
+        * public/WebFrameClient.h:
+        (WebKit::WebFrameClient::didDetectXSS):
+        * src/FrameLoaderClientImpl.cpp:
+        (WebKit::FrameLoaderClientImpl::didDetectXSS):
+        * src/FrameLoaderClientImpl.h:
+
+2011-11-02  Jon Lee  <jonlee@apple.com>
+
+        <input=file multiple> default text uses singular instead of plural
+        https://bugs.webkit.org/show_bug.cgi?id=71319
+        <rdar://problem/10379021>
+
+        Reviewed by Darin Adler.
+
+        * src/LocalizedStrings.cpp:
+        (WebCore::fileButtonNoFilesSelectedLabel):
+
+2011-11-02  Andrey Kosyakov  <caseq@chromium.org>
+
+        Unreviewed fix for build failure on chromium shared linux caused by r99020.
+
+        * WebKit.gyp:
+
+2011-11-01  Darin Adler  <darin@apple.com>
+
+        Change HTMLSelectElement::setSelectedIndex to use enums instead of bools
+        https://bugs.webkit.org/show_bug.cgi?id=70184
+
+        Reviewed by Kent Tamura.
+
+        * tests/PopupMenuTest.cpp:
+        (WebKit::TestPopupMenuClient::valueChanged): Replaced setSelectedIndexByUser
+        call with a call to the renamed optionSelectedByUser, also removed one argument.
+
+2011-11-01  Nat Duca  <nduca@chromium.org>
+
+        [chromium] Move resource-releasing logic into CCProxy and cleanup setNeedsCommit
+        https://bugs.webkit.org/show_bug.cgi?id=71269
+
+        Reviewed by James Robinson.
+
+        * src/WebLayerTreeView.cpp:
+        (WebKit::WebLayerTreeView::composite):
+        * src/WebViewImpl.cpp:
+        (WebKit::WebViewImpl::setRootLayerNeedsDisplay):
+        * tests/CCLayerTreeHostTest.cpp:
+        (CCLayerTreeHostTest::postSetNeedsCommitToMainThread):
+        (CCLayerTreeHostTest::dispatchSetNeedsCommit):
+        (CCLayerTreeHostTestShortlived2::beginTest):
+        (CCLayerTreeHostTestCommitingWithContinuousRedraw::beginTest):
+        (CCLayerTreeHostTestCommitingWithContinuousRedraw::drawLayersOnCCThread):
+        (CCLayerTreeHostTestSetNeedsCommit1::beginTest):
+        (CCLayerTreeHostTestSetNeedsCommit2::beginTest):
+        (CCLayerTreeHostTestSetNeedsCommit2::drawLayersOnCCThread):
+        (CCLayerTreeHostTestSetNeedsRedraw::beginTest):
+        (CCLayerTreeHostTestScrollSimple::beginTest):
+        (CCLayerTreeHostTestScrollSimple::drawLayersOnCCThread):
+        (CCLayerTreeHostTestScrollMultipleRedraw::beginTest):
+        (CCLayerTreeHostTestScrollMultipleRedraw::drawLayersOnCCThread):
+
+2011-11-01  Julien Chaffraix  <jchaffraix@webkit.org>
+
+        Pack RenderTableCell bits
+        https://bugs.webkit.org/show_bug.cgi?id=71135
+
+        Reviewed by Darin Adler.
+
+        * WebKit.gypi:
+        * tests/RenderTableCellTest.cpp: Added.
+        Added some tests for the column/row index limit
+        that was implemented in RenderTableCell.
+
+2011-11-01  Nate Chapin  <japhet@chromium.org>
+
+        Add 2 new TargetTypes (to match ResourceRequest::TargetType)
+        and ensure we don't pass chromium a TargetType it doesn't
+        yet understand.
+        https://bugs.webkit.org/show_bug.cgi?id=70972
+
+        Reviewed by Darin Fisher.
+
+        * public/WebURLRequest.h:
+        * src/WebURLRequest.cpp:
+
+2011-11-01  Tommy Widenflycht  <tommyw@google.com>
+
+        [chromium] Media Stream API: Adding supporting classes to WebPeerConnectionHandler
+        https://bugs.webkit.org/show_bug.cgi?id=71008
+
+        Expanding WebMediaStreamDescriptor and adding WebMediaStreamSource
+
+        Reviewed by Darin Fisher.
+
+        * WebKit.gyp:
+        * public/WebMediaStreamDescriptor.h:
+        * public/WebMediaStreamSource.h: Copied from Source/WebKit/chromium/public/WebMediaStreamDescriptor.h.
+        (WebKit::WebMediaStreamSource::WebMediaStreamSource):
+        (WebKit::WebMediaStreamSource::~WebMediaStreamSource):
+        (WebKit::WebMediaStreamSource::isNull):
+        * src/AssertMatchingEnums.cpp:
+        * src/WebMediaStreamDescriptor.cpp:
+        (WebKit::WebMediaStreamDescriptor::operator=):
+        (WebKit::WebMediaStreamDescriptor::initialize):
+        * src/WebMediaStreamSource.cpp: Copied from Source/WebKit/chromium/src/WebMediaStreamDescriptor.cpp.
+        (WebKit::WebMediaStreamSource::WebMediaStreamSource):
+        (WebKit::WebMediaStreamSource::reset):
+        (WebKit::WebMediaStreamSource::operator PassRefPtr<MediaStreamSource>):
+        (WebKit::WebMediaStreamSource::operator MediaStreamSource*):
+        (WebKit::WebMediaStreamSource::initialize):
+        (WebKit::WebMediaStreamSource::id):
+        (WebKit::WebMediaStreamSource::type):
+        (WebKit::WebMediaStreamSource::name):
+
+2011-11-01  Nat Duca  <nduca@chromium.org>
+
+        CCSchedulerTests fail on Chromium Windows (dbg) after r98915
+        https://bugs.webkit.org/show_bug.cgi?id=71294
+
+        Reviewed by James Robinson.
+
+        * tests/CCSchedulerTest.cpp:
+        (WebKitTests::TEST):
+
+2011-11-01  Alok Priyadarshi  <alokp@chromium.org>
+
+        Roll chromium DEPS.
+
+        Unreviewed.
+
+        * DEPS:
+
+2011-11-01  Pavel Feldman  <pfeldman@google.com>
+
+        Not reviewed: fix chromium interactive tests.
+
+        * src/js/Tests.js:
+        (.TestSuite.prototype.showPanel):
+
 2011-10-31  Tommy Widenflycht  <tommyw@google.com>
 
         [Chromium] Media Stream API: add the Chromium WebKit interfaces

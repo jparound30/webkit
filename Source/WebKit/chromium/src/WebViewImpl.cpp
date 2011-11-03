@@ -50,6 +50,7 @@
 #include "DragController.h"
 #include "DragData.h"
 #include "DragScrollTimer.h"
+#include "DragSession.h"
 #include "Editor.h"
 #include "EventHandler.h"
 #include "Extensions3D.h"
@@ -2067,11 +2068,13 @@ WebDragOperation WebViewImpl::dragTargetDragEnterOrOver(const WebPoint& clientPo
         screenPoint,
         static_cast<DragOperation>(m_operationsAllowed));
 
-    DragOperation dropEffect;
+    DragSession dragSession;
     if (dragAction == DragEnter)
-        dropEffect = m_page->dragController()->dragEntered(&dragData);
+        dragSession = m_page->dragController()->dragEntered(&dragData);
     else
-        dropEffect = m_page->dragController()->dragUpdated(&dragData);
+        dragSession = m_page->dragController()->dragUpdated(&dragData);
+
+    DragOperation dropEffect = dragSession.operation;
 
     // Mask the drop effect operation against the drag source's allowed operations.
     if (!(dropEffect & dragData.draggingSourceOperationMask()))
@@ -2525,7 +2528,7 @@ void WebViewImpl::setRootLayerNeedsDisplay()
         m_layerTreeHost->setZoomAnimatorTransform(zoomMatrix);
     }
     if (m_layerTreeHost)
-        m_layerTreeHost->setNeedsCommitThenRedraw();
+        m_layerTreeHost->setNeedsCommit();
 }
 
 void WebViewImpl::scrollRootLayerRect(const IntSize& scrollDelta, const IntRect& clipRect)

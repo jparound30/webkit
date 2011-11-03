@@ -64,7 +64,6 @@ public:
     bool hasHandledAKeyDownEvent() const { return m_hasHandledAKeyDownEvent; }
 
     mach_port_t compositingRenderServerPort();
-    double contentsScaleFactor();
 
 #ifndef NP_NO_CARBON
     WindowRef windowRef() const;
@@ -116,6 +115,7 @@ public:
     unsigned scheduleTimer(unsigned interval, bool repeat, void (*timerFunc)(NPP, unsigned timerID));
     void unscheduleTimer(unsigned timerID);
 
+    double contentsScaleFactor();
     String proxiesForURL(const String& urlString);
     String cookiesForURL(const String& urlString);
     void setCookiesForURL(const String& urlString, const String& cookieString);
@@ -160,6 +160,8 @@ private:
     bool platformHandleKeyboardEvent(const WebKeyboardEvent&);
     void platformSetFocus(bool);
 
+    static bool wantsWindowRelativeNPWindowCoordinates();
+
     // Plugin
     virtual bool initialize(const Parameters&);
     virtual void destroy();
@@ -169,7 +171,6 @@ private:
     virtual PlatformLayer* pluginLayer();
 #endif
     virtual bool isTransparent();
-    virtual void deprecatedGeometryDidChange(const WebCore::IntRect& frameRect, const WebCore::IntRect& clipRect);
     virtual void geometryDidChange(const WebCore::IntSize& pluginSize, const WebCore::IntRect& clipRect, const WebCore::AffineTransform& pluginToRootViewTransform);
     virtual void visibilityDidChange();
     virtual void frameDidFinishLoading(uint64_t requestID);
@@ -199,7 +200,6 @@ private:
     virtual void windowFocusChanged(bool);
     virtual void windowAndViewFramesChanged(const WebCore::IntRect& windowFrameInScreenCoordinates, const WebCore::IntRect& viewFrameInWindowCoordinates);
     virtual void windowVisibilityChanged(bool);
-    virtual void contentsScaleFactorChanged(float);
 
     virtual uint64_t pluginComplexTextInputIdentifier() const;
     virtual void sendComplexTextInput(const String& textInput);
@@ -208,6 +208,7 @@ private:
     void setComplexTextInputEnabled(bool);
 #endif
 
+    virtual void contentsScaleFactorChanged(float);
     virtual void privateBrowsingStateChanged(bool);
     virtual bool getFormValue(String& formValue);
     virtual bool handleScroll(WebCore::ScrollDirection, WebCore::ScrollGranularity);

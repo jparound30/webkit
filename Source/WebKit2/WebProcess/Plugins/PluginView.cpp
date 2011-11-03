@@ -589,7 +589,7 @@ void PluginView::paint(GraphicsContext* context, const IntRect& dirtyRect)
         return;
 
     if (m_snapshot) {
-        m_snapshot->paint(*context, frameRect().location(), m_snapshot->bounds());
+        m_snapshot->paint(*context, contentsScaleFactor(), frameRect().location(), m_snapshot->bounds());
         return;
     }
     
@@ -715,12 +715,6 @@ void PluginView::viewGeometryDidChange()
 {
     if (!m_isInitialized || !m_plugin || !parent())
         return;
-
-    if (m_plugin->wantsWindowRelativeCoordinates()) {
-        // Get the frame rect in window coordinates.
-        IntRect rect = parent()->contentsToWindow(frameRect());
-        m_plugin->deprecatedGeometryDidChange(rect, clipRectInWindowCoordinates());
-    }
 
     // FIXME: Just passing a translation matrix isn't good enough.
     IntPoint locationInWindowCoordinates = parent()->contentsToRootView(frameRect().location());
@@ -1150,6 +1144,7 @@ mach_port_t PluginView::compositingRenderServerPort()
 {
     return WebProcess::shared().compositingRenderServerPort();
 }
+#endif
 
 float PluginView::contentsScaleFactor()
 {
@@ -1158,7 +1153,6 @@ float PluginView::contentsScaleFactor()
         
     return 1;
 }
-#endif
     
 String PluginView::proxiesForURL(const String& urlString)
 {

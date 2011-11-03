@@ -60,59 +60,6 @@ void ValueSource::dump(FILE* out) const
         break;
     }
 }
-
-void ValueRecovery::dump(FILE* out) const
-{
-    switch (technique()) {
-    case AlreadyInRegisterFile:
-        fprintf(out, "-");
-        break;
-    case AlreadyInRegisterFileAsUnboxedInt32:
-        fprintf(out, "(int32)");
-        break;
-    case AlreadyInRegisterFileAsUnboxedCell:
-        fprintf(out, "(cell)");
-        break;
-    case AlreadyInRegisterFileAsUnboxedBoolean:
-        fprintf(out, "(bool)");
-        break;
-    case InGPR:
-        fprintf(out, "%%%s", GPRInfo::debugName(gpr()));
-        break;
-    case UnboxedInt32InGPR:
-        fprintf(out, "int32(%%%s)", GPRInfo::debugName(gpr()));
-        break;
-    case UnboxedBooleanInGPR:
-        fprintf(out, "bool(%%%s)", GPRInfo::debugName(gpr()));
-        break;
-    case InFPR:
-        fprintf(out, "%%%s", FPRInfo::debugName(fpr()));
-        break;
-#if USE(JSVALUE32_64)
-    case InPair:
-        fprintf(out, "pair(%%%s, %%%s)", GPRInfo::debugName(tagGPR()), GPRInfo::debugName(payloadGPR()));
-        break;
-#endif
-    case DisplacedInRegisterFile:
-        fprintf(out, "*%d", virtualRegister());
-        break;
-    case Int32DisplacedInRegisterFile:
-        fprintf(out, "*int32(%d)", virtualRegister());
-        break;
-    case DoubleDisplacedInRegisterFile:
-        fprintf(out, "*double(%d)", virtualRegister());
-        break;
-    case Constant:
-        fprintf(out, "[%s]", constant().description());
-        break;
-    case DontKnow:
-        fprintf(out, "!");
-        break;
-    default:
-        fprintf(out, "?%d", technique());
-        break;
-    }
-}
 #endif
 
 OSRExit::OSRExit(JSValueSource jsValueSource, ValueProfile* valueProfile, MacroAssembler::Jump check, SpeculativeJIT* jit, unsigned recoveryIndex)
@@ -316,8 +263,28 @@ void SpeculativeJIT::compile(BasicBlock& block)
 #if DFG_ENABLE(DEBUG_VERBOSE)
             fprintf(stderr, "SpeculativeJIT skipping Node @%d (bc#%u) at JIT offset 0x%x     ", (int)m_compileIndex, node.codeOrigin.bytecodeIndex, m_jit.debugOffset());
 #endif
-            if (node.op == SetLocal)
+            switch (node.op) {
+            case SetLocal:
                 compileMovHint(node);
+                break;
+
+            case InlineStart: {
+                InlineCallFrame* inlineCallFrame = node.codeOrigin.inlineCallFrame;
+                unsigned argumentsStart = inlineCallFrame->stackOffset - RegisterFile::CallFrameHeaderSize - inlineCallFrame->arguments.size();
+                for (unsigned i = 0; i < inlineCallFrame->arguments.size(); ++i) {
+                    ValueRecovery recovery = computeValueRecoveryFor(m_variables[argumentsStart + i]);
+                    // The recovery cannot point to registers, since the call frame reification isn't
+                    // as smart as OSR, so it can't handle that. The exception is the this argument,
+                    // which we don't really need to be able to recover.
+                    ASSERT(!i || !recovery.isInRegisters());
+                    inlineCallFrame->arguments[i] = recovery;
+                }
+                break;
+            }
+                
+            default:
+                break;
+            }
         } else {
             
 #if DFG_ENABLE(DEBUG_VERBOSE)

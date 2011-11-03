@@ -6,7 +6,7 @@
 // SLOW TESTS
 // -----------------------------------------------------------------
 
-BUGCR24182 SLOW SNOWLEOPARD DEBUG : fast/css/large-list-of-rules-crash.html = PASS
+BUGCR24182 SLOW MAC DEBUG : fast/css/large-list-of-rules-crash.html = PASS
 BUGCR24182 SLOW LINUX MAC DEBUG : fast/dom/Window/window-postmessage-clone-really-deep-array.html = PASS
 BUGCR24182 SLOW MAC DEBUG : fast/forms/form-associated-element-crash3.html = PASS
 BUGCR24182 SLOW SNOWLEOPARD DEBUG : fast/forms/select-set-length-with-mutation-remove.html = PASS
@@ -48,8 +48,7 @@ BUGCR24182 SLOW SNOWLEOPARD DEBUG : fast/frames/calculate-percentage.html = PASS
 
 BUGWK67919 SLOW DEBUG : perf/document-contains.html = PASS
 
-// show-hide-table-rows.html on DEBUG takes more than 60s. (as of Sep 12, 2011)
-BUGWK67921 DEBUG : perf/show-hide-table-rows.html = TIMEOUT
+BUGWK67921 SLOW : perf/show-hide-table-rows.html = PASS
 
 // -----------------------------------------------------------------
 // TEMPORARILY SKIPPED TESTS
@@ -63,9 +62,10 @@ BUGCR24189 SKIP : fast/dom/open-and-close-by-DOM.html = FAIL
 BUGCR36681 SKIP : java = TEXT
 
 // Quota API is not supported in DRT yet.
+BUGCR84572 SKIP : storage/storageinfo-missing-arguments.html = FAIL
+BUGCR84572 SKIP : storage/storageinfo-no-callbacks.html = FAIL
 BUGCR84572 SKIP : storage/storageinfo-query-usage.html = FAIL
 BUGCR84572 SKIP : storage/storageinfo-request-quota.html = FAIL
-BUGCR84572 SKIP : storage/storageinfo-no-callbacks.html = FAIL
 
 // Animation API is disabled.  Dean Jackson has promised (as of Aug. 25, 2011)
 // to re-enable these "in the next few weeks".
@@ -77,40 +77,6 @@ BUGWK60877 SKIP : loader/load-defer-resume-crash.html = FAIL
 
 // CSS3 Selectors3 test suite
 BUGCR89468 : css3/selectors3 = PASS FAIL
-
-// Tests for <track>.  Feature is not yet functional.
-BUGWK43668 SKIP : media/track/track-mutable.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-text-track-cue-list.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-text-track.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-webvtt-tc000-empty.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-webvtt-tc001-utf8.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-webvtt-tc002-bom.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-webvtt-tc003-newlines.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-webvtt-tc004-magic-header.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-webvtt-tc005-header-comment.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-webvtt-tc006-cue-identifiers.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-webvtt-tc007-cue-no-id.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-webvtt-tc008-timings-no-hours.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-webvtt-tc009-timings-hour.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-webvtt-tc010-no-timings.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-webvtt-tc011-blank-lines.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-webvtt-tc012-out-of-order.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-webvtt-tc013-settings.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-webvtt-tc014-alignment.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-webvtt-tc015-positioning.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-webvtt-tc016-align-positioning.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-webvtt-tc017-line-position.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-webvtt-tc018-align-text-line-position.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-webvtt-tc019-cue-size.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-webvtt-tc020-cue-size-align.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-webvtt-tc021-valign.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-webvtt-tc022-entities.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-webvtt-tc023-markup.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-webvtt-tc024-timestamp.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-webvtt-tc025-class-markup.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-webvtt-tc026-voice.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-webvtt-tc027-empty-cue.html = TIMEOUT
-BUGWK43668 SKIP : media/track/track-webvtt-tc028-unsupported-markup.html = TIMEOUT
 
 // Tests for MediaSource API. Feature is not yet functional.
 BUGWK64731 SKIP : http/tests/media/media-source/ = TIMEOUT
@@ -607,12 +573,6 @@ BUGCR24197 SKIP : fast/css/disabled-author-styles.html = FAIL
 // Inspector tests
 // -----------------------------------------------------------------
 
-// There is no message port harness to test extensions
-WONTFIX SKIP : inspector/extensions = FAIL
-WONTFIX SKIP : http/tests/inspector/extensions-headers.html = FAIL
-WONTFIX SKIP : http/tests/inspector/extensions-network-redirect.html = FAIL
-WONTFIX SKIP : http/tests/inspector/extensions-useragent.html = FAIL
-
 // There is no enough plugins support in DRT
 WONTFIX SKIP : http/tests/inspector/network/network-embed.html = FAIL
 WONTFIX SKIP : http/tests/inspector/network/network-content-replacement-embed.html = FAIL
@@ -725,7 +685,6 @@ BUGWK61624 WIN : editing/pasteboard/smart-paste-003.html = TEXT
 BUGWK61624 WIN : editing/pasteboard/smart-paste-004.html = TEXT
 
 // New test in r93068
-BUGWK66268 MAC CPU-CG : editing/deleting/regional-indicators.html = TEXT
 BUGWK66268 WIN LINUX : editing/deleting/regional-indicators.html = TEXT
 
 BUGWK67121 DEBUG SLOW : editing/selection/move-by-word-visually-multi-space.html = PASS
@@ -1055,7 +1014,7 @@ BUGWK64876 LINUX WIN GPU : fast/canvas/canvas-scale-strokePath-shadow.html = TEX
 // Rebaseline once native aa-clipping has landed
 BUGWK70748 CPU : css2.1/t0805-c5517-brdr-s-00-c.html = IMAGE
 BUGWK70748 CPU : fast/backgrounds/border-radius-split-background-image.html = IMAGE
-BUGWK70748 CPU : fast/backgrounds/gradient-background-leakage.html = IMAGE
+BUGWK70748 CPU WIN : fast/backgrounds/gradient-background-leakage.html = IMAGE
 BUGWK70748 CPU : fast/borders/borderRadiusAllStylesAllCorners.html = IMAGE
 BUGWK70748 CPU : fast/borders/borderRadiusArcs01.html = IMAGE
 BUGWK70748 CPU : fast/borders/border-radius-complex-inner.html = IMAGE
@@ -1163,13 +1122,12 @@ BUGWK70748 CPU : svg/clip-path/clip-path-transform-2.svg = IMAGE
 BUGWK70748 CPU : svg/clip-path/clip-path-use-as-child.svg = IMAGE
 BUGWK70748 CPU : svg/clip-path/clip-path-userSpaceOnUse.svg = IMAGE
 BUGWK70748 CPU : svg/clip-path/clip-path-with-text-clipped.svg = IMAGE
-BUGWK70748 CPU : svg/css/text-shadow-multiple.xhtml = IMAGE
+BUGWK70748 CPU LEOPARD : svg/css/text-shadow-multiple.xhtml = IMAGE
 BUGWK70748 CPU : svg/custom/resource-invalidate-on-target-update.svg = IMAGE
 BUGWK70748 CPU : svg/custom/use-on-clip-path-with-transformation.svg = IMAGE
-BUGWK70748 CPU : svg/W3C-I18N/tspan-dirLTR-ubOverride-in-rtl-context.svg = IMAGE
+BUGWK70748 CPU LEOPARD : svg/W3C-I18N/tspan-dirLTR-ubOverride-in-rtl-context.svg = IMAGE
 BUGWK70748 CPU : svg/W3C-SVG-1.1/painting-marker-02-f.svg = IMAGE
-BUGWK70748 CPU : fast/borders/only-one-border-with-width.html = IMAGE
-BUGWK70748 CPU : svg/W3C-SVG-1.1/masking-path-05-f.svg = IMAGE
+BUGWK70748 CPU LEOPARD : svg/W3C-SVG-1.1/masking-path-05-f.svg = IMAGE
 
 // -----------------------------------------------------------------
 // Other failures
@@ -1418,8 +1376,6 @@ BUGCR23476 MAC : fast/frames/inline-object-inside-frameset.html = IMAGE
 BUGCR23476 MAC : fast/text/font-initial.html = IMAGE
 
 // Disagreeing XML parsing error messages
-//BUGCR23475 LEOPARD : fast/parser/xhtml-alternate-entities.xml = IMAGE
-//BUGCR23475 LEOPARD : fast/xsl/xslt-extra-content-at-end.xml = IMAGE
 BUGCR88911 LEOPARD : fast/parser/xhtml-alternate-entities.xml = IMAGE+TEXT
 BUGCR88911 LEOPARD : fast/xsl/xslt-extra-content-at-end.xml = IMAGE+TEXT
 
@@ -1698,7 +1654,7 @@ BUGCR101797 CPU : svg/filters/subRegion-two-effects.svg = IMAGE
 // Already marked as flaky under BUGCR10479
 // BUGCR101797 CPU : svg/hixie/perf/001.xml = IMAGE
 // BUGCR101797 CPU : svg/hixie/perf/002.xml = IMAGE
-BUGCR101797 CPU : svg/hixie/perf/007.xml = IMAGE
+BUGCR101797 CPU SLOW : svg/hixie/perf/007.xml = IMAGE
 
 // Flaky for a while; also related to BUGCR17974
 BUGCR15267 LINUX WIN : transitions/cancel-transition.html = PASS FAIL
@@ -1758,9 +1714,6 @@ BUGCR24182 SLOW DEBUG : fast/forms/input-maxlength.html = PASS
 
 // WebKit roll 49405:49413
 BUGCR28409 : http/tests/xmlhttprequest/logout.html = FAIL
-
-// WebKit Roll 49597:49640
-//BUGCR24966 SLOW MAC DEBUG : fast/frames/calculate-fixed.html = PASS
 
 // WebKit Roll 49640:49684
 BUGCR25202 LINUX WIN : svg/W3C-SVG-1.1/masking-path-02-b.svg = FAIL
@@ -2052,7 +2005,6 @@ BUGCR61824 : canvas/philip/tests/2d.pattern.image.string.html = TEXT
 BUGCR62301 : canvas/philip/tests/2d.drawImage.image.incomplete.omitted.html = TEXT
 BUGCR62301 : canvas/philip/tests/2d.fillStyle.parse.rgb-eof.html = TEXT
 BUGCR62301 : canvas/philip/tests/2d.fillStyle.parse.rgba-eof.html = TEXT
-BUGCR62301 : canvas/philip/tests/2d.imageData.put.wrongtype.html = TEXT
 BUGCR62301 : canvas/philip/tests/2d.pattern.image.incomplete.empty.html = TEXT
 BUGCR62301 : canvas/philip/tests/2d.pattern.image.incomplete.omitted.html = TEXT
 
@@ -2406,8 +2358,8 @@ BUGCR58257 WIN : http/tests/misc/last-modified-parsing.html = PASS TIMEOUT
 
 // Flaky because they snapshot and animation.
 // Started failing on Mac since 69314:69342.
-BUGCR10479 MAC WIN : svg/hixie/perf/001.xml = PASS IMAGE IMAGE+TEXT
-BUGCR10479 MAC WIN : svg/hixie/perf/002.xml = PASS IMAGE IMAGE+TEXT
+BUGCR10479 MAC WIN : svg/hixie/perf/001.xml = IMAGE IMAGE+TEXT
+BUGCR10479 MAC WIN : svg/hixie/perf/002.xml = IMAGE IMAGE+TEXT
 
 // FileWriter isn't in TestShell yet.
 BUGCR58587 SKIP : fast/filesystem/file-writer-gc-blob.html = FAIL
@@ -2790,7 +2742,7 @@ BUGCR74979 SKIP MAC GPU GPU-CG : media/video-canvas-alpha.html = IMAGE
 
 BUGWK67116 GPU GPU-CG DEBUG : compositing/layer-creation/overflow-scroll-overlap.html = PASS TEXT
 
-BUGWK67760 GPU : media/media-document-audio-repaint.html = IMAGE+TEXT IMAGE
+BUGWK67760 GPU : media/media-document-audio-repaint.html = IMAGE PASS
 
 BUGWK55968 MAC GPU GPU-CG : compositing/webgl/webgl-nonpremultiplied-blend.html = IMAGE IMAGE+TEXT
 BUGWK55968 WIN DEBUG GPU : compositing/webgl/webgl-nonpremultiplied-blend.html = IMAGE
@@ -3145,7 +3097,6 @@ BUGWK60115 LINUX WIN : fast/multicol/shadow-breaking.html = IMAGE
 BUGWK60115 WIN : fast/text/shadow-translucent-fill.html = IMAGE
 BUGWK60115 LEOPARD : fast/text/shadow-translucent-fill.html = IMAGE
 BUGWK60115 MAC CPU-CG : fast/transforms/shadows.html = PASS IMAGE
-//BUGWK60115 XP : svg/css/group-with-shadow.svg = IMAGE
 BUGWK60115 WIN : transitions/svg-text-shadow-transition.html = IMAGE
 BUGWK60115 WIN : svg/css/composite-shadow-text.svg = IMAGE
 BUGWK60115 WIN : svg/css/shadow-changes.svg = IMAGE
@@ -3629,24 +3580,15 @@ BUG_ABARTH WIN : svg/as-background-image/svg-as-background-3.html = PASS IMAGE
 
 BUGCR95972 WIN DEBUG : webaudio/sample-accurate-scheduling.html = CRASH
 
+// New test, needs baselines after patch lands.
+BUGWK70379 MAC WIN : fast/canvas/canvas-composite-fill-repaint.html = MISSING
+
 // Failing after r94912.
 BUGWK67913 : media/video-zoom-controls.html = TEXT IMAGE+TEXT IMAGE
-BUGCR96220 : fast/borders/border-image-outset-split-inline-vertical-lr.html = IMAGE
-BUGCR96220 : fast/reflections/reflection-masks-outset.html = IMAGE
-BUGCR96220 WIN LINUX : fast/borders/block-mask-overlay-image-outset.html = IMAGE+TEXT
-BUGCR96220 MAC : fast/borders/block-mask-overlay-image-outset.html = IMAGE
-BUGCR96220 WIN LINUX : fast/borders/border-image-outset-in-shorthand.html = IMAGE+TEXT
-BUGCR96220 MAC : fast/borders/border-image-outset-in-shorthand.html = IMAGE
-BUGCR96220 WIN LINUX : fast/borders/border-image-outset.html = IMAGE+TEXT
-BUGCR96220 MAC : fast/borders/border-image-outset.html = IMAGE
-BUGCR96220 WIN LINUX : fast/borders/inline-mask-overlay-image-outset-vertical-rl.html = IMAGE+TEXT
-BUGCR96220 MAC : fast/borders/inline-mask-overlay-image-outset-vertical-rl.html = IMAGE CRASH
-BUGCR96220 WIN LINUX : fast/borders/inline-mask-overlay-image-outset.html = IMAGE+TEXT
-BUGCR96220 MAC : fast/borders/inline-mask-overlay-image-outset.html = IMAGE
+BUGCR102677 MAC DEBUG : fast/reflections/reflection-masks-outset.html = CRASH PASS
 
 // Failing after r94946
 BUGWK67926 WIN : fast/events/constructors/progress-event-constructor.html = TEXT
-BUGWK67980 MAC CPU-CG : fast/events/constructors/progress-event-constructor.html = TEXT
 
 BUG_LEVIN SNOWLEOPARD DEBUG : http/tests/loading/307-after-303-after-post.html = PASS TEXT
 BUG_LEVIN SNOWLEOPARD DEBUG : http/tests/security/mixedContent/insecure-image-in-main-frame.html = PASS TEXT
@@ -3657,7 +3599,6 @@ BUG_LEVIN MAC DEBUG : svg/custom/object-no-size-attributes.xhtml = PASS IMAGE+TE
 BUGWK68372 SNOWLEOPARD : svg/animations/svglength-animation-px-to-exs.html = PASS CRASH
 
 // Tests that are known to fail on Mac10.6 with CPU-Skia graphics.
-BUGWK68436 SNOWLEOPARD CPU : fast/events/constructors/progress-event-constructor.html = TEXT
 BUGWK68436 SNOWLEOPARD CPU DEBUG : fast/repaint/background-clip-text.html = TIMEOUT
 BUGWK68436 SNOWLEOPARD CPU : fast/repaint/text-emphasis-h.html = TIMEOUT IMAGE
 BUGWK68436 SNOWLEOPARD CPU : svg/W3C-SVG-1.1/paths-data-12-t.svg = IMAGE+TEXT
@@ -3770,13 +3711,12 @@ BUGABARTH WIN LINUX : svg/custom/svg-fonts-word-spacing.html = PASS FAIL
 
 BUGWK68747 : media/controls-right-click-on-timebar.html = TIMEOUT PASS
 
-BUGCR96861 WIN LINUX : media/audio-repaint.html = TIMEOUT IMAGE PASS
 BUGCR97657 MAC CPU-CG : media/audio-repaint.html = TIMEOUT IMAGE PASS
 
 BUGWK68881 DEBUG : svg/text/selection-background-color.xhtml = CRASH IMAGE
 BUGWK68881 DEBUG : svg/text/selection-styles.xhtml = CRASH IMAGE
 
-BUGWK68886 MAC GPU-CG : compositing/geometry/limit-layer-bounds-transformed-overflow.html = TEXT
+BUGWK68886 DEBUG MAC GPU-CG GPU : compositing/geometry/limit-layer-bounds-transformed-overflow.html = TEXT
 
 BUGWK68970 MAC CPU-CG : fast/multicol/float-paginate-empty-lines.html = IMAGE
 BUGWK68970 MAC CPU-CG : svg/custom/js-late-gradient-and-object-creation.svg = IMAGE
@@ -3862,9 +3802,6 @@ BUGWK70298 : plugins/hidden-iframe-with-swf-plugin.html = FAIL TIMEOUT PASS
 BUGWK70298 : svg/custom/js-late-gradient-creation.svg = IMAGE PASS
 BUGWK70298 : svg/custom/js-late-pattern-creation.svg = IMAGE PASS
 
-// Needs rebaseline for WIN
-BUGWK70568 WIN : fast/css/child-style-can-override-visited-style.html = TEXT
-
 // Failing since ~r97700.
 BUGWK70298 WIN LINUX SNOWLEOPARD : fast/selectors/unqualified-hover-strict.html = IMAGE+TEXT PASS
 BUGWK70298 LEOPARD : fast/selectors/unqualified-hover-strict.html = IMAGE
@@ -3879,10 +3816,6 @@ BUGWK70640 SNOWLEOPARD : fast/multicol/vertical-lr/rules-with-border-before.html
 BUGWK70640 SNOWLEOPARD : fast/multicol/vertical-rl/rules-with-border-before.html = PASS TEXT
 
 BUGWK70641 SNOWLEOPARD : fast/frames/sandboxed-iframe-scripting.html = PASS CRASH
-
-// Needs rebaseline
-BUGWK20795 : fast/forms/mailto/formenctype-attribute-input-html.html = TEXT
-BUGWK20795 : fast/forms/mailto/formenctype-attribute-button-html.html = TEXT
 
 BUGWK70749 SNOWLEOPARD CPU GPU : fast/ruby/base-shorter-than-text.html = IMAGE+TEXT PASS
 
@@ -3903,25 +3836,19 @@ BUGWK70988 SNOWLEOPARD : fast/preloader/noscript.html = PASS TEXT
 
 BUGWK70988 SNOWLEOPARD : fast/css/css-selector-deeply-nested.html = PASS TIMEOUT
 BUGWK70988 SNOWLEOPARD : fast/events/tabindex-focus-blur-all.html = PASS TIMEOUT
-BUGWK70988 SNOWLEOPARD : fast/frames/calculate-fixed.html = PASS TIMEOUT
 BUGWK70988 SNOWLEOPARD : fast/frames/invalid.html = PASS TIMEOUT
 BUGWK70988 SNOWLEOPARD : fast/parser/residual-style-dom.html = PASS TIMEOUT
 BUGWK70988 SNOWLEOPARD : fast/text/khmer-crash.html = PASS TIMEOUT
 BUGWK70988 SNOWLEOPARD : http/tests/navigation/navigation-interrupted-by-fragment.html = PASS TIMEOUT
 BUGWK70988 SNOWLEOPARD : jquery/traversing.html = PASS TIMEOUT
+BUGWK70988 MAC DEBUG SLOW : fast/frames/calculate-fixed.html = PASS
 
 BUGWK71004 : inspector/storage-panel-dom-storage.html = PASS TIMEOUT
 
 BUGWK71074 MAC : fast/table/border-collapsing/border-collapsing-head-foot.html = IMAGE+TEXT
-BUGWK71080 : printing/single-line-must-not-be-split-into-two-pages.html = IMAGE+TEXT IMAGE PASS MISSING
-BUGWK71080 : printing/setPrinting.html = IMAGE+TEXT IMAGE PASS
 
 BUGWK71083 MAC : fast/frames/iframe-double-scale-contents.html = FAIL CRASH
-BUGWK71084 WIN : http/tests/inspector/extensions-ignore-cache.html = FAIL CRASH
 
-BUGWK71127 : fast/js/array-functions-non-arrays.html = TEXT
-BUGWK71127 : fast/js/toString-overrides.html = TEXT
-BUGWK71127 : fast/js/toString-recursion.html = TEXT
 BUGWK71127 : fast/js/kde/RegExp.html = TEXT
 BUGWK71127 : fast/js/exception-sequencing-binops2.html = TEXT
 BUGWK71127 : fast/js/array-prototype-properties.html = TEXT
@@ -3940,12 +3867,26 @@ BUGWK71215 SNOWLEOPARD DEBUG : animations/change-keyframes.html = TEXT
 
 BUGWK71226 : svg/as-background-image/animated-svg-as-background.html = IMAGE
 BUGWK71226 : svg/zoom/page/zoom-coords-viewattr-01-b.svg = IMAGE+TEXT
-BUGWK71226 : svg/zoom/page/zoom-img-preserveAspectRatio-support-1.html = IMAGE+TEXT
+BUGWK71226 MAC : svg/zoom/page/zoom-img-preserveAspectRatio-support-1.html = IMAGE+TEXT
+BUGWK71226 WIN LINUX : svg/zoom/page/zoom-img-preserveAspectRatio-support-1.html = PASS IMAGE+TEXT
 BUGWK71226 : fast/backgrounds/size/contain-and-cover-zoomed.html = IMAGE+TEXT
 BUGWK71226 : fast/backgrounds/animated-svg-as-mask.html = IMAGE+TEXT IMAGE
 
-BUGWK71277 WIN GPU : media/video-source.html = CRASH PASS
-BUGWK71277 WIN GPU : media/video-src-change.html = CRASH PASS
-BUGWK71277 WIN GPU : media/video-transformed.html = CRASH PASS
-
 BUGWK71278 SLOW WIN RELEASE : fast/events/dispatch-message-string-data.html = PASS
+
+BUGWK71282 WIN DEBUG : inspector/extensions = CRASH PASS TIMEOUT
+BUGWK71282 WIN DEBUG : http/tests/inspector/extensions-headers.html = CRASH PASS TIMEOUT
+BUGWK71282 WIN DEBUG : http/tests/inspector/extensions-network-redirect.html = CRASH PASS TIMEOUT
+BUGWK71282 WIN DEBUG : http/tests/inspector/extensions-useragent.html = CRASH PASS TIMEOUT
+BUGWK71084 WIN DEBUG : http/tests/inspector/extensions-ignore-cache.html = CRASH FAIL CRASH
+
+BUGWK70044 : svg/filters/invalidate-on-child-layout.svg = TEXT IMAGE IMAGE+TEXT
+
+// These just need to be rebaselined, but the 10.5 bots are slow.
+BUGTONY LEOPARD : printing/single-line-must-not-be-split-into-two-pages.html = FAIL PASS
+BUGTONY LEOPARD : printing/setPrinting.html = FAIL PASS
+
+BUGWK71450 MAC DEBUG SLOW : fast/frames/valid.html = PASS
+BUGWK71451 SLOW : fast/frames/sandboxed-iframe-navigation-windowopen.html = PASS
+BUGWK71451 LINUX : http/tests/security/contentSecurityPolicy/policy-does-not-affect-child.html = TEXT PASS
+

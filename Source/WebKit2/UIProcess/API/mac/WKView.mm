@@ -61,6 +61,7 @@
 #import <WebCore/ColorMac.h>
 #import <WebCore/DragController.h>
 #import <WebCore/DragData.h>
+#import <WebCore/DragSession.h>
 #import <WebCore/FloatRect.h>
 #import <WebCore/IntRect.h>
 #import <WebCore/KeyboardEvent.h>
@@ -1586,7 +1587,20 @@ static void extractUnderlines(NSAttributedString *string, Vector<CompositionUnde
     IntPoint global(globalPoint([draggingInfo draggingLocation], [self window]));
     DragData dragData(draggingInfo, client, global, static_cast<DragOperation>([draggingInfo draggingSourceOperationMask]), [self applicationFlags:draggingInfo]);
     _data->_page->dragUpdated(&dragData, [[draggingInfo draggingPasteboard] name]);
-    return _data->_page->dragOperation();
+    
+    WebCore::DragSession dragSession = _data->_page->dragSession();
+#if !defined(BUILDING_ON_SNOW_LEOPARD)
+    NSInteger numberOfValidItemsForDrop = dragSession.numberOfItemsToBeAccepted;
+    NSDraggingFormation draggingFormation = NSDraggingFormationNone;
+    if (dragSession.mouseIsOverFileInput && numberOfValidItemsForDrop > 0)
+        draggingFormation = NSDraggingFormationList;
+
+    if ([draggingInfo numberOfValidItemsForDrop] != numberOfValidItemsForDrop)
+        [draggingInfo setNumberOfValidItemsForDrop:numberOfValidItemsForDrop];
+    if ([draggingInfo draggingFormation] != draggingFormation)
+        [draggingInfo setDraggingFormation:draggingFormation];
+#endif
+    return dragSession.operation;
 }
 
 - (void)draggingExited:(id <NSDraggingInfo>)draggingInfo

@@ -62,7 +62,7 @@ bool CallFrame::isInlineCallFrameSlow()
     return calleeAsFunction->executable() != codeBlock()->ownerExecutable();
 }
         
-CallFrame* CallFrame::trueCallerFrameSlow()
+CallFrame* CallFrame::trueCallerFrame()
 {
     // this -> The callee; this is either an inlined callee in which case it already has
     //    a pointer to the true caller. Otherwise it contains current PC in the machine
@@ -83,7 +83,9 @@ CallFrame* CallFrame::trueCallerFrameSlow()
     if (!machineCaller)
         return 0;
     ASSERT(!machineCaller->isInlineCallFrame());
-    if (!machineCaller->codeBlock() || !machineCaller->codeBlock()->hasCodeOrigins())
+    if (!machineCaller->codeBlock())
+        return machineCaller;
+    if (!machineCaller->codeBlock()->hasCodeOrigins())
         return machineCaller; // No inlining, so machineCaller == trueCaller
     
     // Figure out where the caller frame would have gone relative to the machine
@@ -108,7 +110,7 @@ CallFrame* CallFrame::trueCallerFrameSlow()
             inlinedCaller->setCallerFrame(machineCaller);
         
         inlinedCaller->setInlineCallFrame(inlineCallFrame);
-        inlinedCaller->setArgumentCountIncludingThis(inlineCallFrame->numArgumentsIncludingThis);
+        inlinedCaller->setArgumentCountIncludingThis(inlineCallFrame->arguments.size());
         inlinedCaller->setCallee(calleeAsFunction);
         
         inlineCallFrame = nextInlineCallFrame;

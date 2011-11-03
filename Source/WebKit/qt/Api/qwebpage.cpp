@@ -51,6 +51,7 @@
 #include "DragClientQt.h"
 #include "DragController.h"
 #include "DragData.h"
+#include "DragSession.h"
 #include "Editor.h"
 #include "EditorClientQt.h"
 #include "FocusController.h"
@@ -991,7 +992,7 @@ void QWebPagePrivate::dragEnterEvent(T* ev)
 #ifndef QT_NO_DRAGANDDROP
     DragData dragData(ev->mimeData(), QPointF(ev->pos()).toPoint(),
             QCursor::pos(), dropActionToDragOp(ev->possibleActions()));
-    Qt::DropAction action = dragOpToDropAction(page->dragController()->dragEntered(&dragData));
+    Qt::DropAction action = dragOpToDropAction(page->dragController()->dragEntered(&dragData).operation);
     ev->setDropAction(action);
     ev->acceptProposedAction();
 #endif
@@ -1013,7 +1014,7 @@ void QWebPagePrivate::dragMoveEvent(T *ev)
 #ifndef QT_NO_DRAGANDDROP
     DragData dragData(ev->mimeData(), QPointF(ev->pos()).toPoint(),
             QCursor::pos(), dropActionToDragOp(ev->possibleActions()));
-    m_lastDropAction = dragOpToDropAction(page->dragController()->dragUpdated(&dragData));
+    m_lastDropAction = dragOpToDropAction(page->dragController()->dragUpdated(&dragData).operation);
     ev->setDropAction(m_lastDropAction);
     if (m_lastDropAction != Qt::IgnoreAction)
         ev->accept();
@@ -3924,7 +3925,7 @@ quint64 QWebPage::bytesReceived() const
 }
 
 /*!
-    \since 4.7
+    \since 4.8
     \fn void QWebPage::viewportChangeRequested()
 
     Page authors can provide the supplied values by using the viewport meta tag. More information

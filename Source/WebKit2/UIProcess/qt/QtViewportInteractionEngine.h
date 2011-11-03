@@ -42,21 +42,22 @@ class QtViewportInteractionEngine : public QObject {
     Q_OBJECT
 
 public:
-    QtViewportInteractionEngine(const QQuickItem *, QQuickItem *);
+    QtViewportInteractionEngine(const QQuickItem*, QQuickItem*);
     ~QtViewportInteractionEngine();
-
 
     struct Constraints {
         Constraints()
             : initialScale(1.0)
             , minimumScale(0.25)
             , maximumScale(1.8)
+            , devicePixelRatio(1.0)
             , isUserScalable(true)
         { }
 
         qreal initialScale;
         qreal minimumScale;
         qreal maximumScale;
+        qreal devicePixelRatio;
         bool isUserScalable;
     };
 
@@ -65,15 +66,16 @@ public:
     void reset();
     void setConstraints(const Constraints&);
 
+    bool panAnimationActive() const;
     void panGestureStarted(const QPointF& touchPoint, qint64 eventTimestampMillis);
     void panGestureRequestUpdate(const QPointF& touchPoint, qint64 eventTimestampMillis);
     void panGestureCancelled();
     void panGestureEnded(const QPointF& touchPoint, qint64 eventTimestampMillis);
 
+    bool pinchAnimationActive() const;
     void pinchGestureStarted(const QPointF& pinchCenterInContentCoordinates);
     void pinchGestureRequestUpdate(const QPointF& pinchCenterInContentCoordinates, qreal totalScaleFactor);
     void pinchGestureEnded();
-    void stopAnimations();
 
 Q_SIGNALS:
     void viewportUpdateRequested();
@@ -86,9 +88,12 @@ private Q_SLOTS:
     void scaleAnimationStateChanged(QAbstractAnimation::State, QAbstractAnimation::State);
 
 private:
-    qreal innerBoundedScale(qreal scale);
-    qreal outerBoundedScale(qreal scale);
-    const QRectF calculateBoundariesForScale(const QSizeF contentSize, const QSizeF viewportSize, qreal scale);
+    qreal cssScaleFromItem(qreal);
+    qreal itemScaleFromCSS(qreal);
+    qreal innerBoundedCSSScale(qreal);
+    qreal outerBoundedCSSScale(qreal);
+
+    QRectF computePosRangeForItemScale(qreal itemScale) const;
     void animateContentIntoBoundariesIfNeeded();
 
     void scaleContent(const QPointF& centerInContentCoordinates, qreal scale);
@@ -108,7 +113,6 @@ private:
         UserHasNotInteractedWithContent = 0,
         UserHasMovedContent = 1,
         UserHasScaledContent = 2,
-        UserHasStoppedAnimations = 4
     };
     Q_DECLARE_FLAGS(UserInteractionFlags, UserInteractionFlag);
     UserInteractionFlags m_userInteractionFlags;

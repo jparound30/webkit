@@ -64,7 +64,7 @@ void QtTouchWebPageProxy::renderToCurrentGLContext(const TransformationMatrix& t
 #if ENABLE(TOUCH_EVENTS)
 void QtTouchWebPageProxy::doneWithTouchEvent(const NativeWebTouchEvent& event, bool wasEventHandled)
 {
-    if (wasEventHandled) {
+    if (wasEventHandled || event.type() == WebEvent::TouchCancel) {
         m_panGestureRecognizer.reset();
         m_pinchGestureRecognizer.reset();
     } else {
@@ -100,11 +100,6 @@ void QtTouchWebPageProxy::setVisibleContentRectAndScale(const QRectF& visibleCon
 void QtTouchWebPageProxy::setVisibleContentRectTrajectoryVector(const QPointF& trajectoryVector)
 {
     m_webPageProxy->drawingArea()->setVisibleContentRectTrajectoryVector(trajectoryVector);
-}
-
-void QtTouchWebPageProxy::setResizesToContentsUsingLayoutSize(const QSize& targetLayoutSize)
-{
-    m_webPageProxy->setResizesToContentsUsingLayoutSize(targetLayoutSize);
 }
 
 void QtTouchWebPageProxy::touchEvent(QTouchEvent* event)

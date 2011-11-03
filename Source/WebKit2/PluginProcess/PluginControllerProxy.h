@@ -99,9 +99,9 @@ private:
     virtual void pluginFocusOrWindowFocusChanged(bool);
     virtual void setComplexTextInputState(PluginComplexTextInputState);
     virtual mach_port_t compositingRenderServerPort();
-    virtual float contentsScaleFactor();
 #endif
 
+    virtual float contentsScaleFactor();
     virtual String proxiesForURL(const String&);
     virtual String cookiesForURL(const String&);
     virtual void setCookiesForURL(const String& urlString, const String& cookieString);
@@ -194,12 +194,12 @@ private:
     // Whether complex text input is enabled for this plug-in.
     bool m_isComplexTextInputEnabled;
 
-    // The contents scale factor of this plug-in.
-    float m_contentsScaleFactor;
-
     // For CA plug-ins, this holds the information needed to export the layer hierarchy to the UI process.
     RetainPtr<WKCARemoteLayerClientRef> m_remoteLayerClient;
 #endif
+
+    // The contents scale factor of this plug-in.
+    float m_contentsScaleFactor;
     
     // The backing store that this plug-in draws into.
     RefPtr<ShareableBitmap> m_backingStore;

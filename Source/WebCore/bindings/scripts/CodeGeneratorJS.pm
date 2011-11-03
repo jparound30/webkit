@@ -837,7 +837,7 @@ sub GenerateHeader
 
     # Custom getOwnPropertyNames function
     if ($dataNode->extendedAttributes->{"CustomGetPropertyNames"} || $dataNode->extendedAttributes->{"HasIndexGetter"} || $dataNode->extendedAttributes->{"HasCustomIndexGetter"} || $dataNode->extendedAttributes->{"HasNumericIndexGetter"}) {
-        push(@headerContent, "    virtual void getOwnPropertyNames(JSC::ExecState*, JSC::PropertyNameArray&, JSC::EnumerationMode mode = JSC::ExcludeDontEnumProperties);\n");
+        push(@headerContent, "    static void getOwnPropertyNames(JSC::JSObject*, JSC::ExecState*, JSC::PropertyNameArray&, JSC::EnumerationMode mode = JSC::ExcludeDontEnumProperties);\n");
         $structureFlags{"JSC::OverridesGetPropertyNames"} = 1;       
     }
 
@@ -845,13 +845,7 @@ sub GenerateHeader
     push(@headerContent, "    static void defineGetter(JSC::JSObject*, JSC::ExecState*, const JSC::Identifier& propertyName, JSC::JSObject* getterFunction, unsigned attributes);\n") if $dataNode->extendedAttributes->{"CustomDefineGetter"};
 
     # Custom defineSetter function
-    push(@headerContent, "    virtual void defineSetter(JSC::ExecState*, const JSC::Identifier& propertyName, JSC::JSObject* setterFunction, unsigned attributes);\n") if $dataNode->extendedAttributes->{"CustomDefineSetter"};
-
-    # Custom lookupGetter function
-    push(@headerContent, "    virtual JSC::JSValue lookupGetter(JSC::ExecState*, const JSC::Identifier& propertyName);\n") if $dataNode->extendedAttributes->{"CustomLookupGetter"};
-
-    # Custom lookupSetter function
-    push(@headerContent, "    virtual JSC::JSValue lookupSetter(JSC::ExecState*, const JSC::Identifier& propertyName);\n") if $dataNode->extendedAttributes->{"CustomLookupSetter"};
+    push(@headerContent, "    static void defineSetter(JSC::JSObject*, JSC::ExecState*, const JSC::Identifier& propertyName, JSC::JSObject* setterFunction, unsigned attributes);\n") if $dataNode->extendedAttributes->{"CustomDefineSetter"};
 
     # Override toBoolean to return false for objects that want to 'MasqueradesAsUndefined'.
     if ($dataNode->extendedAttributes->{"MasqueradesAsUndefined"}) {
@@ -1928,14 +1922,15 @@ sub GenerateImplementation
     }
 
     if (($dataNode->extendedAttributes->{"HasIndexGetter"} || $dataNode->extendedAttributes->{"HasCustomIndexGetter"} || $dataNode->extendedAttributes->{"HasNumericIndexGetter"}) && !$dataNode->extendedAttributes->{"CustomGetPropertyNames"}) {
-        push(@implContent, "void ${className}::getOwnPropertyNames(ExecState* exec, PropertyNameArray& propertyNames, EnumerationMode mode)\n");
+        push(@implContent, "void ${className}::getOwnPropertyNames(JSObject* object, ExecState* exec, PropertyNameArray& propertyNames, EnumerationMode mode)\n");
         push(@implContent, "{\n");
-        push(@implContent, "    ASSERT_GC_OBJECT_INHERITS(this, &s_info);\n");
+        push(@implContent, "    ${className}* thisObject = static_cast<${className}*>(object);\n");
+        push(@implContent, "    ASSERT_GC_OBJECT_INHERITS(thisObject, &s_info);\n");
         if ($dataNode->extendedAttributes->{"HasIndexGetter"} || $dataNode->extendedAttributes->{"HasCustomIndexGetter"} || $dataNode->extendedAttributes->{"HasNumericIndexGetter"}) {
-            push(@implContent, "    for (unsigned i = 0; i < static_cast<${implClassName}*>(impl())->length(); ++i)\n");
+            push(@implContent, "    for (unsigned i = 0; i < static_cast<${implClassName}*>(thisObject->impl())->length(); ++i)\n");
             push(@implContent, "        propertyNames.add(Identifier::from(exec, i));\n");
         }
-        push(@implContent, "     Base::getOwnPropertyNames(exec, propertyNames, mode);\n");
+        push(@implContent, "     Base::getOwnPropertyNames(thisObject, exec, propertyNames, mode);\n");
         push(@implContent, "}\n\n");
     }
 

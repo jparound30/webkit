@@ -25,6 +25,7 @@
 
 #include "CallFrame.h"
 #include "ConstructData.h"
+#include "JSCell.h"
 
 namespace JSC {
 
@@ -65,8 +66,14 @@ namespace JSC {
         typedef void (*DefineGetterFunctionPtr)(JSObject*, ExecState*, const Identifier&, JSObject*, unsigned);
         DefineGetterFunctionPtr defineGetter;
 
+        typedef void (*DefineSetterFunctionPtr)(JSObject*, ExecState*, const Identifier&, JSObject*, unsigned);
+        DefineSetterFunctionPtr defineSetter;
+
         typedef JSValue (*DefaultValueFunctionPtr)(const JSObject*, ExecState*, PreferredPrimitiveType);
         DefaultValueFunctionPtr defaultValue;
+
+        typedef void (*GetOwnPropertyNamesFunctionPtr)(JSObject*, ExecState*, PropertyNameArray&, EnumerationMode);
+        GetOwnPropertyNamesFunctionPtr getOwnPropertyNames;
     };
 
 #define CREATE_MEMBER_CHECKER(member) \
@@ -100,7 +107,9 @@ struct MemberCheck##member { \
         &ClassName::getOwnPropertySlotByIndex, \
         &ClassName::toThisObject, \
         &ClassName::defineGetter, \
+        &ClassName::defineSetter, \
         &ClassName::defaultValue, \
+        &ClassName::getOwnPropertyNames, \
     }, \
     sizeof(ClassName)
 

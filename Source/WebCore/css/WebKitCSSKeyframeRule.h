@@ -56,10 +56,7 @@ public:
 
     CSSMutableStyleDeclaration* style() const { return m_style.get(); }
 
-    virtual String cssText() const;
-
-    // Not part of the CSSOM
-    virtual bool parseString(const String&, bool = false);
+    String cssText() const;
 
     void setDeclaration(PassRefPtr<CSSMutableStyleDeclaration>);
 

@@ -1171,6 +1171,12 @@ void WebViewHost::didRunInsecureContent(WebFrame*, const WebSecurityOrigin& orig
         fputs("didRunInsecureContent\n", stdout);
 }
 
+void WebViewHost::didDetectXSS(WebFrame*, const WebURL&, bool)
+{
+    if (m_shell->shouldDumpFrameLoadCallbacks())
+        fputs("didDetectXSS\n", stdout);
+}
+
 void WebViewHost::openFileSystem(WebFrame* frame, WebFileSystem::Type type, long long size, bool create, WebFileSystemCallbacks* callbacks)
 {
     webkit_support::OpenFileSystem(frame, type, size, create, callbacks);
@@ -1604,6 +1610,8 @@ void WebViewHost::paintPagesWithBoundaries()
                                                  CGColorSpaceCreateDeviceRGB(),
                                                  kCGImageAlphaPremultipliedFirst |
                                                  kCGBitmapByteOrder32Host);
+    CGContextTranslateCTM(webCanvas, 0.0, totalHeight);
+    CGContextScaleCTM(webCanvas, 1.0, -1.0f);
 #endif
 
     webFrame->printPagesWithBoundaries(webCanvas, pageSizeInPixels);

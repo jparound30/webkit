@@ -172,7 +172,8 @@ void webkitWebLoaderClientAttachLoaderClientToPage(WebKitWebLoaderClient* loader
         0, // processDidCrash
         didChangeBackForwardList,
         0, // shouldGoToBackForwardListItem
-        0 // didFailToInitializePlugin
+        0, // didFailToInitializePlugin
+        0 // didDetectXSSForFrame
     };
     WKPageSetPageLoaderClient(wkPage, &wkLoaderClient);
 }

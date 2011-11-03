@@ -31,6 +31,7 @@ EXPORTS
     ??1DropAllLocks@JSLock@JSC@@QAE@XZ
     ??1JSGlobalData@JSC@@QAE@XZ
     ??1JSGlobalObject@JSC@@UAE@XZ
+    ??1JSVariableObject@JSC@@UAE@XZ
     ??1Mutex@WTF@@QAE@XZ
     ??1RefCountedLeakCounter@WTF@@QAE@XZ
     ??1ScopeChainNode@JSC@@EAE@XZ
@@ -137,8 +138,8 @@ EXPORTS
     ?defineOwnProperty@JSObject@JSC@@UAE_NPAVExecState@2@ABVIdentifier@2@AAVPropertyDescriptor@2@_N@Z
     ?defineGetter@JSGlobalObject@JSC@@SAXPAVJSObject@2@PAVExecState@2@ABVIdentifier@2@0I@Z
     ?defineGetter@JSObject@JSC@@SAXPAV12@PAVExecState@2@ABVIdentifier@2@0I@Z
-    ?defineSetter@JSGlobalObject@JSC@@UAEXPAVExecState@2@ABVIdentifier@2@PAVJSObject@2@I@Z
-    ?defineSetter@JSObject@JSC@@UAEXPAVExecState@2@ABVIdentifier@2@PAV12@I@Z
+    ?defineSetter@JSGlobalObject@JSC@@SAXPAVJSObject@2@PAVExecState@2@ABVIdentifier@2@0I@Z
+    ?defineSetter@JSObject@JSC@@SAXPAV12@PAVExecState@2@ABVIdentifier@2@0I@Z
     ?deleteOwnedPtr@WTF@@YAXPAUHBITMAP__@@@Z
     ?deleteOwnedPtr@WTF@@YAXPAUHBRUSH__@@@Z
     ?deleteOwnedPtr@WTF@@YAXPAUHDC__@@@Z
@@ -194,9 +195,9 @@ EXPORTS
     ?getOwnPropertyDescriptor@JSObject@JSC@@UAE_NPAVExecState@2@ABVIdentifier@2@AAVPropertyDescriptor@2@@Z
     ?getOwnPropertyDescriptor@JSString@JSC@@EAE_NPAVExecState@2@ABVIdentifier@2@AAVPropertyDescriptor@2@@Z
     ?getOwnPropertyDescriptor@StringObject@JSC@@UAE_NPAVExecState@2@ABVIdentifier@2@AAVPropertyDescriptor@2@@Z
-    ?getOwnPropertyNames@JSObject@JSC@@UAEXPAVExecState@2@AAVPropertyNameArray@2@W4EnumerationMode@2@@Z
-    ?getOwnPropertyNames@JSVariableObject@JSC@@UAEXPAVExecState@2@AAVPropertyNameArray@2@W4EnumerationMode@2@@Z
-    ?getOwnPropertyNames@StringObject@JSC@@UAEXPAVExecState@2@AAVPropertyNameArray@2@W4EnumerationMode@2@@Z
+    ?getOwnPropertyNames@JSByteArray@JSC@@SAXPAVJSObject@2@PAVExecState@2@AAVPropertyNameArray@2@W4EnumerationMode@2@@Z
+    ?getOwnPropertyNames@JSObject@JSC@@SAXPAV12@PAVExecState@2@AAVPropertyNameArray@2@W4EnumerationMode@2@@Z
+    ?getOwnPropertyNames@JSVariableObject@JSC@@SAXPAVJSObject@2@PAVExecState@2@AAVPropertyNameArray@2@W4EnumerationMode@2@@Z
     ?getOwnPropertySlot@JSByteArray@JSC@@SA_NPAVJSCell@2@PAVExecState@2@ABVIdentifier@2@AAVPropertySlot@2@@Z
     ?getOwnPropertySlot@JSGlobalObject@JSC@@SA_NPAVJSCell@2@PAVExecState@2@ABVIdentifier@2@AAVPropertySlot@2@@Z
     ?getOwnPropertySlotByIndex@JSArray@JSC@@SA_NPAVJSCell@2@PAVExecState@2@IAAVPropertySlot@2@@Z
@@ -240,8 +241,6 @@ EXPORTS
     ?lock@Mutex@WTF@@QAEXXZ
     ?lockAtomicallyInitializedStaticMutex@WTF@@YAXXZ
     ?lockCount@JSLock@JSC@@SAHXZ
-    ?lookupGetter@JSObject@JSC@@UAE?AVJSValue@2@PAVExecState@2@ABVIdentifier@2@@Z
-    ?lookupSetter@JSObject@JSC@@UAE?AVJSValue@2@PAVExecState@2@ABVIdentifier@2@@Z
     ?match@RegExp@JSC@@QAEHAAVJSGlobalData@2@ABVUString@2@HPAV?$Vector@H$0CA@@WTF@@@Z
     ?materializePropertyMap@Structure@JSC@@AAEXAAVJSGlobalData@2@@Z
     ?monotonicallyIncreasingTime@WTF@@YANXZ

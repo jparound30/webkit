@@ -100,7 +100,8 @@ PassOwnPtr<CachedResourceRequest> CachedResourceRequest::load(CachedResourceLoad
 
     ResourceRequest resourceRequest = resource->resourceRequest();
 #if PLATFORM(CHROMIUM)
-    resourceRequest.setTargetType(cachedResourceTypeToTargetType(resource->type()));
+    if (resourceRequest.targetType() == ResourceRequest::TargetIsUnspecified)
+        resourceRequest.setTargetType(cachedResourceTypeToTargetType(resource->type()));
 #endif
 
     if (!resource->accept().isEmpty())
@@ -292,7 +293,12 @@ void CachedResourceRequest::didReceiveData(SubresourceLoader* loader, const char
         return;
 
     if (m_resource->response().httpStatusCode() >= 400 && !m_resource->shouldIgnoreHTTPStatusCodeErrors()) {
+        if (!m_multipart)
+            m_cachedResourceLoader->decrementRequestCount(m_resource);
+        m_finishing = true;
+        m_loader->clearClient();
         m_resource->error(CachedResource::LoadError);
+        end();
         return;
     }
 

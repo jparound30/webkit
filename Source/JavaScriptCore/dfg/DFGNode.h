@@ -56,7 +56,7 @@
 #define DFG_ENABLE_JIT_BREAK_ON_SPECULATION_FAILURE 0
 // Log every speculation failure.
 #define DFG_ENABLE_VERBOSE_SPECULATION_FAILURE 0
-// Disable the DFG JIT without having to touch Platform.h!
+// Disable the DFG JIT without having to touch Platform.h
 #define DFG_DEBUG_LOCAL_DISBALE 0
 // Enable OSR entry from baseline JIT.
 #define DFG_ENABLE_OSR_ENTRY ENABLE(DFG_JIT)
@@ -219,6 +219,11 @@ static inline const char* arithNodeFlagsAsString(ArithNodeFlags flags)
     \
     /* Marker for arguments being set. */\
     macro(SetArgument, 0) \
+    \
+    /* Hint that inlining begins here. No code is generated for this node. It's only */\
+    /* used for copying OSR data into inline frame data, to support reification of */\
+    /* call frames of inlined functions. */\
+    macro(InlineStart, 0) \
     \
     /* Nodes for bitwise operations. */\
     macro(BitAnd, NodeResultInt32) \

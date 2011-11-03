@@ -138,7 +138,7 @@ namespace JSC {
         static bool getOwnPropertySlot(JSCell*, ExecState*, const Identifier& propertyName, PropertySlot&);
         static bool getOwnPropertySlotByIndex(JSCell*, ExecState*, unsigned propertyName, PropertySlot&);
         virtual bool getOwnPropertyDescriptor(ExecState*, const Identifier&, PropertyDescriptor&);
-        virtual void getOwnPropertyNames(ExecState*, PropertyNameArray&, EnumerationMode mode = ExcludeDontEnumProperties);
+        static void getOwnPropertyNames(JSObject*, ExecState*, PropertyNameArray&, EnumerationMode);
         static void put(JSCell*, ExecState*, const Identifier& propertyName, JSValue, PutPropertySlot&);
         static void putByIndex(JSCell*, ExecState*, unsigned propertyName, JSValue);
         static bool deleteProperty(JSCell*, ExecState*, const Identifier& propertyName);
@@ -167,7 +167,7 @@ namespace JSC {
         argc = callFrame->argumentCountIncludingThis();
         
         if (callFrame->isInlineCallFrame())
-            ASSERT(argc == numParameters);
+            ASSERT(argc == numParameters + 1);
 
         if (argc <= numParameters)
             argv = callFrame->registers() - RegisterFile::CallFrameHeaderSize - numParameters;
@@ -259,8 +259,43 @@ namespace JSC {
             size_t registerArraySize = d->numParameters;
             
             OwnArrayPtr<WriteBarrier<Unknown> > registerArray = adoptArrayPtr(new WriteBarrier<Unknown>[registerArraySize]);
-            for (size_t i = 0; i < registerArraySize; ++i)
-                registerArray[i].set(callFrame->globalData(), this, callFrame->registers()[i - registerOffset].jsValue());
+            if (callFrame->isInlineCallFrame()) {
+                InlineCallFrame* inlineCallFrame = callFrame->inlineCallFrame();
+                for (size_t i = 0; i < registerArraySize; ++i) {
+                    ValueRecovery& recovery = inlineCallFrame->arguments[i + 1];
+                    // In the future we'll support displaced recoveries (indicating that the
+                    // argument was flushed to a different location), but for now we don't do
+                    // that so this code will fail if that were to happen. On the other hand,
+                    // it's much less likely that we'll support in-register recoveries since
+                    // this code does not (easily) have access to registers.
+                    JSValue value;
+                    Register* location = callFrame->registers() + i - registerOffset;
+                    switch (recovery.technique()) {
+                    case AlreadyInRegisterFile:
+                        value = location->jsValue();
+                        break;
+                    case AlreadyInRegisterFileAsUnboxedInt32:
+                        value = jsNumber(location->unboxedInt32());
+                        break;
+                    case AlreadyInRegisterFileAsUnboxedCell:
+                        value = location->unboxedCell();
+                        break;
+                    case AlreadyInRegisterFileAsUnboxedBoolean:
+                        value = jsBoolean(location->unboxedBoolean());
+                        break;
+                    case Constant:
+                        value = recovery.constant();
+                        break;
+                    default:
+                        ASSERT_NOT_REACHED();
+                        break;
+                    }
+                    registerArray[i].set(callFrame->globalData(), this, value);
+                }
+            } else {
+                for (size_t i = 0; i < registerArraySize; ++i)
+                    registerArray[i].set(callFrame->globalData(), this, callFrame->registers()[i - registerOffset].jsValue());
+            }
             d->registers = registerArray.get() + d->numParameters + RegisterFile::CallFrameHeaderSize;
             d->registerArray = registerArray.release();
         }

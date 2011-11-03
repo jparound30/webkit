@@ -127,9 +127,10 @@ void JSDOMWindowShell::getPropertyNames(ExecState* exec, PropertyNameArray& prop
     window()->getPropertyNames(exec, propertyNames, mode);
 }
 
-void JSDOMWindowShell::getOwnPropertyNames(ExecState* exec, PropertyNameArray& propertyNames, EnumerationMode mode)
+void JSDOMWindowShell::getOwnPropertyNames(JSObject* object, ExecState* exec, PropertyNameArray& propertyNames, EnumerationMode mode)
 {
-    window()->getOwnPropertyNames(exec, propertyNames, mode);
+    JSDOMWindowShell* thisObject = static_cast<JSDOMWindowShell*>(object);
+    thisObject->window()->methodTable()->getOwnPropertyNames(thisObject->window(), exec, propertyNames, mode);
 }
 
 void JSDOMWindowShell::defineGetter(JSObject* object, ExecState* exec, const Identifier& propertyName, JSObject* getterFunction, unsigned attributes)
@@ -138,19 +139,10 @@ void JSDOMWindowShell::defineGetter(JSObject* object, ExecState* exec, const Ide
     thisObject->window()->methodTable()->defineGetter(thisObject->window(), exec, propertyName, getterFunction, attributes);
 }
 
-void JSDOMWindowShell::defineSetter(ExecState* exec, const Identifier& propertyName, JSObject* setterFunction, unsigned attributes)
+void JSDOMWindowShell::defineSetter(JSObject* object, ExecState* exec, const Identifier& propertyName, JSObject* setterFunction, unsigned attributes)
 {
-    window()->defineSetter(exec, propertyName, setterFunction, attributes);
-}
-
-JSValue JSDOMWindowShell::lookupGetter(ExecState* exec, const Identifier& propertyName)
-{
-    return window()->lookupGetter(exec, propertyName);
-}
-
-JSValue JSDOMWindowShell::lookupSetter(ExecState* exec, const Identifier& propertyName)
-{
-    return window()->lookupSetter(exec, propertyName);
+    JSDOMWindowShell* thisObject = static_cast<JSDOMWindowShell*>(object);
+    thisObject->window()->methodTable()->defineSetter(thisObject->window(), exec, propertyName, setterFunction, attributes);
 }
 
 

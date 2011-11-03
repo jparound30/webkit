@@ -37,6 +37,12 @@ namespace JSC {
 
     class JSGlobalObject;
     class Structure;
+    class PropertyNameArray;
+
+    enum EnumerationMode {
+        ExcludeDontEnumProperties,
+        IncludeDontEnumProperties
+    };
 
     class JSCell {
         friend class JSValue;
@@ -135,7 +141,9 @@ namespace JSC {
 
         // Dummy implementations of override-able static functions for classes to put in their MethodTable
         static NO_RETURN_DUE_TO_ASSERT void defineGetter(JSObject*, ExecState*, const Identifier&, JSObject*, unsigned);
+        static NO_RETURN_DUE_TO_ASSERT void defineSetter(JSObject*, ExecState*, const Identifier& propertyName, JSObject* setterFunction, unsigned attributes = 0);
         static JSValue defaultValue(const JSObject*, ExecState*, PreferredPrimitiveType);
+        static NO_RETURN_DUE_TO_ASSERT void getOwnPropertyNames(JSObject*, ExecState*, PropertyNameArray&, EnumerationMode);
 
     private:
         WriteBarrier<Structure> m_structure;

@@ -45,11 +45,11 @@ public:
 
     CSSMutableStyleDeclaration* style() const { return m_style.get(); }
 
-    virtual String cssText() const;
+    String cssText() const;
 
     void setDeclaration(PassRefPtr<CSSMutableStyleDeclaration>);
 
-    virtual void addSubresourceStyleURLs(ListHashSet<KURL>& urls);
+    void addSubresourceStyleURLs(ListHashSet<KURL>& urls);
 
 private:
     CSSFontFaceRule(CSSStyleSheet* parent);
